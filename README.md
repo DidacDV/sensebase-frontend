@@ -8,6 +8,10 @@ This project uses a lightweight, modern stack to build fast and elegant interfac
 - **Vite** for blazing-fast dev and build  
 - **Tailwind CSS** for utility-first styling  
 
+**Other Libraries**
+- **Nivo** for charts
+- **Motion** for animations
+- **React router** for routing
 ---
 
 ## Getting started

@@ -1,19 +1,19 @@
-// layout should go here
+import { BrowserRouter, Routes, Route } from 'react-router';
+import { Layout } from './components/layout/layout';
+import Home from './pages/home';
+import { ChartsPOC } from './pages/chartPOC';
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white">
-      <div className="text-center p-8">
-        <h1 className="text-6xl font-extrabold tracking-tight drop-shadow-lg">
-          SenseBase
-        </h1>
-
-        <p className="mt-6 text-lg text-blue-100">
-          Your data, illuminated with clarity.
-        </p>
-      </div>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/tariff" element={<ChartsPOC />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
-
+export default App;
