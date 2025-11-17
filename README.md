@@ -26,3 +26,10 @@ Run the development server
 ```sh
 npm run dev
 ```
+
+## TODO features
+- Instead of fetching from mock data, fetch from actual API data. It would be a good idea to try with hourly and daily too.
+- Improve layout and more charts on the demo / POC page
+
+## TODO code
+- Change all imports to use the @ prefix instead of being relative
