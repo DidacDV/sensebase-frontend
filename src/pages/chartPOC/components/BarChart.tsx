@@ -12,11 +12,9 @@ interface BarChartProps {
 export const BarChart: React.FC<BarChartProps> = ({ data, categories }) => { 
   const nivoBarData = transformToNivoBarData(data, categories as (keyof SourceData)[]);
   
-  // Detect if data is hourly (check if bucket format contains time)
+  //detect if data is hourly (check if bucket format contains time)
   const isHourly = nivoBarData.length > 0 && nivoBarData[0].bucket.includes(':');
-  console.log('First bucket:', nivoBarData[0]?.bucket);
-console.log('isHourly:', nivoBarData.length > 0 && nivoBarData[0]?.bucket.includes(':'));
-  // Extract unique days from hourly data
+  //extract unique days from hourly data
   const availableDays = useMemo(() => {
     if (!isHourly) return [];
     const days = new Set<string>();
@@ -29,7 +27,7 @@ console.log('isHourly:', nivoBarData.length > 0 && nivoBarData[0]?.bucket.includ
   
   const [selectedDay, setSelectedDay] = useState<string>(availableDays[0] || '');
   
-  // Filter data for selected day if hourly
+  //for selected day if hourly
   const filteredData = useMemo(() => {
     if (!isHourly || !selectedDay) return nivoBarData;
     return nivoBarData.filter(item => item.bucket.startsWith(selectedDay));
