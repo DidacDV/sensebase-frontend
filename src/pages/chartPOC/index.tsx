@@ -1,11 +1,13 @@
 // EnergyConsumptionChart.tsx
 import React, { useEffect, useState } from 'react';
 import { energyService } from '@src/services/energyIntensity';
-import { type NivoBarData, transformToNivoBarData } from '@src/helpers/energyIntensity';
 import { type ConsumptionData, type SourceData } from '@src/types/energyIntensity';
 
-import { EnergyBarChart } from '@src/pages/chartPOC/components/energyBarChart';
-import { EnergyPolarChart } from '@src/pages/chartPOC/components/energyPolarChart';
+import { BarChart } from '@src/pages/chartPOC/components/BarChart';
+import { PolarChart } from '@src/pages/chartPOC/components/PolarChart';
+import LineChart from './components/LineChart';
+import TimeRangeChart from './components/TimeRangeChart';
+import { HeatmapChart } from './components/HeatChart';
 
 type SourceType = keyof ConsumptionData;
 
@@ -21,7 +23,7 @@ const CATEGORY_LIST: (keyof SourceData)[] = [
 
 // Main Component
 export const EnergyConsumptionChart: React.FC = () => {
-  const [chartData, setChartData] = useState<NivoBarData[]>([]);
+  const [chartData, setChartData] = useState<SourceData>({} as SourceData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -33,8 +35,7 @@ export const EnergyConsumptionChart: React.FC = () => {
       try {
         setLoading(true);
         const sourceData = await energyService.getConsumptionBySource(selectedSource, 'monthly');
-        const transformedData = transformToNivoBarData(sourceData, CATEGORY_LIST);
-        setChartData(transformedData);
+        setChartData(sourceData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -43,7 +44,7 @@ export const EnergyConsumptionChart: React.FC = () => {
     };
 
     fetchData();
-  }, [selectedSource, selectedCategories]);
+  }, [selectedSource]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => {
@@ -145,21 +146,38 @@ export const EnergyConsumptionChart: React.FC = () => {
             <p className="text-gray-600 mt-1">Monthly breakdown in kilowatt-hours (kWh)</p>
           </div>
 
-          {/* Chart */}
+          {/*charts section*/}
           <div className='m-2 bg-slate-400 shadow-md'>
-            <EnergyBarChart 
+            <BarChart 
             data={chartData} 
             categories={selectedCategories} 
           />
           </div>
           <div className='m-2 bg-slate-400 shadow-md'>
-            <EnergyPolarChart 
+            <PolarChart 
             data={chartData} 
             categories={selectedCategories} 
             />
           </div>
+          <div className='m-2 bg-white shadow-md'>
+            <LineChart 
+            data={chartData} 
+            categories={selectedCategories} 
+            />
+          </div>
+          <div className='m-2 bg-white shadow-md'>
+            <TimeRangeChart 
+            source={chartData} 
+            categories={selectedCategories} 
+            />
+          </div>
+          <div className='m-2 bg-white shadow-md'>
+            <HeatmapChart 
+            source={chartData} 
+            categories={selectedCategories} 
+            />
+          </div>
         </div>
-
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">

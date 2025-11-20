@@ -1,5 +1,5 @@
 import { type TimeGranularity, type EnergyResponse, type ConsumptionData, type SourceData, type EnergyData  } from '../types/energyIntensity.ts';
-import mockData from '../mockData/BacRodaMonth.json';
+import mockData from '../mockData/BacRodaHour.json';
 class EnergyService {
 // private baseUrl = 
 

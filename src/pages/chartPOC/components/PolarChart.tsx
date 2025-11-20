@@ -1,23 +1,25 @@
 // EnergyPolarChart.tsx
 import React from 'react';
 import { ResponsivePolarBar } from '@nivo/polar-bar';
-import { type NivoBarData } from '@src/helpers/energyIntensity';
+import { transformToNivoBarData } from '@src/helpers/charts/energyBarChartFormatter';
+import type { SourceData } from '@src/types/energyIntensity';
 
 interface EnergyPolarChartProps {
-  data: NivoBarData[];
+  data: SourceData;
   categories: string[];
 }
 
-export const EnergyPolarChart: React.FC<EnergyPolarChartProps> = ({ 
+export const PolarChart: React.FC<EnergyPolarChartProps> = ({ 
   data, 
   categories,  
 }) => {
+  const nivoBarData = transformToNivoBarData(data, categories as (keyof SourceData)[]);
   return (
     <div style={{ height: '500px' }}>
       <ResponsivePolarBar
-        data={data}
+        data={nivoBarData}
         keys={categories}
-        indexBy="month"
+        indexBy="bucket"
         valueFormat=">-.2f"
         margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
         innerRadius={0.3}
