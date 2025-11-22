@@ -149,8 +149,6 @@ export const EnergyConsumptionChart: React.FC = () => {
           {/*charts section*/}
           <div className='m-2 bg-slate-400 shadow-md'>
             <BarChart 
-            data={chartData} 
-            categories={selectedCategories} 
           />
           </div>
           <div className='m-2 bg-slate-400 shadow-md'>
