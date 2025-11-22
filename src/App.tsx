@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { Layout } from './components/layout/layout';
 import Home from './pages/home';
-import { EnergyConsumptionChart } from './pages/chartPOC';
+import EnergyDashboard  from '@src/pages/chartPOC';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/demo" element={<EnergyConsumptionChart />} />
+          <Route path="/demo" element={<EnergyDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

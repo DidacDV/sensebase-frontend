@@ -1,4 +1,4 @@
-import { type TimeGranularity, type EnergyResponse, type ConsumptionData, type SourceData, type EnergyData  } from '../types/energyIntensity.ts';
+import { type TimeGranularity, type EnergyResponse} from '../types/energyIntensity.ts';
 import mockData from '../mockData/BacRodaHour.json';
 class EnergyService {
 // private baseUrl = 
@@ -34,29 +34,6 @@ class EnergyService {
       console.error('Error fetching energy data:', error);
       throw error;
     }
-  }
-
-  /**
-   * Get consumption data by source (ALL, GRID, or LOCAL), it gets everything but it divides it by source
-   */
-  async getConsumptionBySource(
-    source: keyof ConsumptionData,
-    granularity: TimeGranularity = 'monthly'
-  ): Promise<SourceData> {
-    const data = await this.getEnergyData(granularity);
-    return data.CONSUMPTION[source];
-  }
-
-  /**
-   * Get specific usage category data
-   */
-  async getUsageCategoryData(
-    source: keyof ConsumptionData,
-    category: keyof SourceData,
-    granularity: TimeGranularity = 'monthly'
-  ): Promise<EnergyData[]> {
-    const sourceData = await this.getConsumptionBySource(source, granularity);
-    return sourceData[category]["Active energy delivered"];
   }
 }
 
