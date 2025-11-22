@@ -28,8 +28,9 @@ npm run dev
 ```
 
 ## TODO features
-- Instead of fetching from mock data, fetch from actual API data. It would be a good idea to try with hourly and daily too.
-- Improve layout and more charts on the demo / POC page
+- a BoardPage, la chartData ha de ser de UN DELS TIPUS dels charts que tenim. com ara nomes tenim un, nomes potser d'aquest.
+- a boardContext, s'hauria de renderiztar un chart o un altra depenent del tipus rebut 
+- presets de styles per a la board
 
 ## TODO code
 - Change all imports to use the @ prefix instead of being relative
