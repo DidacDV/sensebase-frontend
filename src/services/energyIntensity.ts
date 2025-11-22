@@ -1,9 +1,9 @@
 import { type TimeGranularity, type EnergyResponse, type ConsumptionData, type SourceData, type EnergyData  } from '../types/energyIntensity.ts';
-import mockData from '../mockData/BacRodaMonth.json';
+import mockData from '../../mockData/BacRodaMonth.json';
 class EnergyService {
 // private baseUrl = 
 
-  /**
+  /**¨
    * Fetch energy consumption data
    * @param granularity - Time granularity: 'hourly', 'daily', or 'monthly'
    * @param startDate - Start date for the data range

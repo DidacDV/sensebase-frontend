@@ -2,7 +2,7 @@ import PartnerLogo from "./components/partnerLogo";
 
 function SpecificSolutionsSection() {
 return (
-    <section className="py-20 px-6 bg-white min-h-screen flex items-center justify-center">
+    <section className="py-16 px-6 bg-white min-h-screen flex items-center justify-center">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-6">
           <span className="text-[#0A1931]">Custom Solutions For </span>
