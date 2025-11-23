@@ -7,10 +7,12 @@ export function Header() {
       <nav className="container mx-auto px-6 py-2 flex items-center justify-between">
         
         {/* Logo Placeholder */}
-        <div className="flex items-center gap-2">
-          <img src={senseBaseLogo} alt="sensebase logo" className="h-14 w-14 object-contain" />
-          <span className="text-xl font-bold text-[#0A1A2F]">sensebase</span>
-        </div>
+        <Link to="/">
+          <div className="flex items-center gap-2">
+            <img src={senseBaseLogo} alt="sensebase logo" className="h-14 w-14 object-contain" />
+            <span className="text-xl font-bold text-[#0A1A2F]">sensebase</span>
+          </div>
+        </Link>
 
         {/* Navigation */}
         <ul className="hidden md:flex items-center gap-8 text-[#0A1A2F] font-medium">
