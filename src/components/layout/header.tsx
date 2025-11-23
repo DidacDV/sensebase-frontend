@@ -3,7 +3,7 @@ import senseBaseLogo from "../../assets/sensebaseLogo.png";
 
 export function Header() {
   return (
-    <header className="bg-white shadow-sm mb-1">
+    <header className="bg-blue-50 shadow-sm">
       <nav className="container mx-auto px-6 py-2 flex items-center justify-between">
         
         {/* Logo Placeholder */}

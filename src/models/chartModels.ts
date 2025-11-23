@@ -1,4 +1,5 @@
 export interface TimeSeriesChartStructure {
+  type: "timeseries";
   hourly: TimeSeriesChartData;
   daily: TimeSeriesChartData;
   monthly: TimeSeriesChartData;
@@ -17,4 +18,13 @@ export interface TimeSeries {
   usageType: string;
   thingLabel: string;
   data: number[];
+}
+
+export type ChartStructure = TimeSeriesChartStructure | BarChartData;
+
+//this is just to simulate the chartstructure type for now
+export interface BarChartData {
+  type: "bar";
+  categories: string[];
+  unit: string;
 }

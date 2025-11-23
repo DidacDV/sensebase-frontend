@@ -10,7 +10,7 @@ class EnergyService {
    * @param startDate - Start date for the data range
    * @param endDate - End date for the data range
    */
-  async getEnergyData(
+  async getContextData(
   ): Promise<TimeSeriesChartStructure> {
     try {
       

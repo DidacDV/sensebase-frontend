@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import AreaStackedGradient from '@src/pages/chartPOC/components/AreaStackedChart';
-import { type TimeSeriesChartStructure } from '@src/models/chartModels';
+import { type ChartStructure } from '@src/models/chartModels';
 import InfoCard, { type InfoCardProps } from '@src/components/boardInfoCard';
+import { ChartRenderer } from './chartRenderer';
+import type { TimeGranularity } from '@src/types/energyIntensity';
 
 interface InsightItem {
   text: string;
@@ -11,8 +12,8 @@ interface InsightItem {
 interface BoardContextProps {
   description?: string;
   infoCards?: InfoCardProps[];
-  chartData1?: TimeSeriesChartStructure;
-  chartData2?: TimeSeriesChartStructure;
+  chartData1?: ChartStructure;
+  chartData2?: ChartStructure;
   chart1Label?: string;
   chart2Label?: string;
   insightsTitle?: string;
@@ -66,7 +67,7 @@ const BoardContext = ({
 }: BoardContextProps) => {
 
     //todo modifier for this?
-    const [granularity, setGranularity] = useState('hourly');
+    const [granularity, setGranularity] = useState<TimeGranularity>('hourly');
 
     // Animation variants
     const containerVariants = {
@@ -123,7 +124,7 @@ const BoardContext = ({
             {/* Chart 1 */}
             <motion.div variants={itemVariants as any}>
             {chartData1 ? (
-                <AreaStackedGradient data={chartData1[granularity as keyof TimeSeriesChartStructure]} height="400px" />
+                <ChartRenderer data={chartData1} granularity={granularity as TimeGranularity} height="400px" />
             ) : (
                 <div className="bg-white rounded-lg shadow-md p-8 h-[400px] flex items-center justify-center">
                 <div className="text-center">
@@ -142,7 +143,7 @@ const BoardContext = ({
             {/* Chart 2 */}
             <motion.div variants={itemVariants as any}>
             {chartData2 ? (
-                <AreaStackedGradient data={chartData2[granularity as keyof TimeSeriesChartStructure]} height="400px" />
+                <ChartRenderer data={chartData2} granularity={granularity as TimeGranularity} height="400px" />
             ) : (
                 <div className="bg-white rounded-lg shadow-md p-8 h-[400px] flex items-center justify-center">
                 <div className="text-center">
@@ -159,37 +160,63 @@ const BoardContext = ({
             </motion.div>
         </div>
 
-        {/* Additional Insights Section */}
         {showInsights && insightsList.length > 0 && (
-            <motion.div
-                variants={itemVariants as any}
-                className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg shadow-sm p-4 border border-blue-100"
-            >
-                <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                        <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div className="ml-4 flex-1">
-                        <h3 className="text-lg font-semibold text-[#1A3D63] mb-2">
-                            {insightsTitle}
-                        </h3>
-
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700 w-full">
-                            {insightsList.map((insight, index) => (
-                                <li key={index} className="flex items-start">
-                                    <span className="text-blue-500 mr-2">•</span>
-                                    <span>{insight.text}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+        <motion.div
+            variants={itemVariants as any}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4"
+        >
+            {/* LEFT insight box */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-sm p-6 border border-blue-100 flex">
+            <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 </div>
-            </motion.div>
+            </div>
+
+            <div className="ml-4 flex-1">
+                <h3 className="text-lg font-semibold text-[#1A3D63] mb-2">
+                {insightsTitle}
+                </h3>
+
+                <ul className="space-y-2 text-gray-700">
+                {insightsList.slice(0, Math.ceil(insightsList.length / 2)).map((insight, index) => (
+                    <li key={index} className="flex items-start">
+                    <span className="text-blue-500 mr-2">•</span>
+                    <span>{insight.text}</span>
+                    </li>
+                ))}
+                </ul>
+            </div>
+            </div>
+
+            {/* RIGHT insight box */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-sm p-6 border border-blue-100 flex">
+            <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                </div>
+            </div>
+
+            <div className="ml-4 flex-1">
+                <h3 className="text-lg font-semibold text-[#1A3D63] mb-2">
+                More Insights
+                </h3>
+
+                <ul className="space-y-2 text-gray-700">
+                {insightsList.slice(Math.ceil(insightsList.length / 2)).map((insight, index) => (
+                    <li key={index} className="flex items-start">
+                    <span className="text-blue-500 mr-2">•</span>
+                    <span>{insight.text}</span>
+                    </li>
+                ))}
+                </ul>
+            </div>
+            </div>
+        </motion.div>
         )}
         </motion.div>
     );
