@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import BoardTabs from "./components/boardTabs";
 import Context from "./components/boardContext";
-import { boardService } from "@src/services/boardService";
+import { boardFunctions } from "@src/services/boardFunctions";
 import type { BoardContext } from "@src/models/boardModel";
 
 const PROVIDER = "schneider";
@@ -16,16 +16,16 @@ const BoardPage = () => {
       setLoading(true);
       try {
         if (activeTab === "Context") {
-          const context: BoardContext = await boardService.getContextData(PROVIDER);
+          const context: BoardContext = await boardFunctions.getContextData(PROVIDER);
           setBoardContext(context);
         } 
         // change to each correct tab when implemented
         else if (activeTab === "Recommendations") {
-          const context: BoardContext = await boardService.getContextData(PROVIDER);
+          const context: BoardContext = await boardFunctions.getContextData(PROVIDER);
           setBoardContext(context);
         }
         else {
-          const context: BoardContext = await boardService.getContextData(PROVIDER);
+          const context: BoardContext = await boardFunctions.getContextData(PROVIDER);
           setBoardContext(context);
         }
       } catch (err) {

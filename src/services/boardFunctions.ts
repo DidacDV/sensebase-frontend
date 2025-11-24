@@ -1,6 +1,6 @@
 import { energyService } from "@src/services/energyIntensity";
 
-class BoardService {
+class BoardFunctions {
     getProviderService(provider: string) {
         switch (provider) {
             case "schneider":
@@ -17,4 +17,4 @@ class BoardService {
     }
 }
 
-export const boardService = new BoardService();
+export const boardFunctions = new BoardFunctions();
