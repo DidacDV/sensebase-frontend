@@ -53,7 +53,7 @@ const InfoCard = ({ color, description, icon }: InfoCardProps) => {
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={`${classes.bg} rounded-xl p-2 shadow-md ${classes.shadow} transition-shadow duration-300 cursor-default`}
+      className={`${classes.bg} rounded-xl p-2 shadow-md ${classes.shadow} h-20 transition-shadow duration-300 cursor-default`}
     >
       <div className="flex items-start gap-3">
         {icon && (
