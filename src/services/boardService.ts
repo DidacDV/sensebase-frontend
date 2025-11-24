@@ -7,6 +7,7 @@ import type {
     TestCredentialsResponse
 } from "@src/types/boardModel";
 import authenticationService from "@src/services/authentication.ts";
+import type {BoardContext} from "@src/models/boardModel.ts";
 
 const boardApi = {
     getAll: async (): Promise<Board[]> => {
@@ -16,6 +17,11 @@ const boardApi = {
 
     getById: async (id: string): Promise<Board> => {
         const { data } = await authenticationService.get(`/boards/${id}/`);
+        return data;
+    },
+
+    getContext: async (id: string, payload: any): Promise<BoardContext> => {
+        const { data } = await authenticationService.post(`/boards/${id}/context/`, payload);
         return data;
     },
 
@@ -59,6 +65,13 @@ export function useBoard(id: string) {
         queryFn: () => boardApi.getById(id),
         enabled: !!id,
     });
+}
+
+export function useBoardContext() {
+    return useMutation({
+        mutationFn: (payload: { id: string; data: any }) =>
+            boardApi.getContext(payload.id, payload.data),
+    })
 }
 
 export function useCreateBoard() {

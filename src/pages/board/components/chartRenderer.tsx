@@ -6,7 +6,7 @@ export function ChartRenderer({ data, granularity, height }: { data: ChartStruct
         console.log("Rendering chart of type:", data);
   switch (data.type) {
     case "timeseries":
-      const timeSeriesData = data as TimeSeriesChartStructure;
+      const timeSeriesData = data.data as TimeSeriesChartStructure;
       return (
         <AreaStackedGradient
             data={timeSeriesData[granularity]}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AreaStackedGradient from './components/AreaStackedChart';
-import formattedData from '@src/mockdata/formatted_output.json';
+import formattedData from '../../../mockData/formatted_output.json';
 import { type TimeSeriesChartStructure } from '@src/models/chartModels';
 
 function EnergyDashboard() {

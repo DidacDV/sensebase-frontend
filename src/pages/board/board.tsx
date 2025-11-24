@@ -1,50 +1,44 @@
 import { useState, useEffect } from "react";
 import BoardTabs from "./components/boardTabs";
 import Context from "./components/boardContext";
-import { boardFunctions } from "@src/services/boardFunctions";
-import type { BoardContext } from "@src/models/boardModel";
+import {useBoardContext} from "@src/services/boardService.ts";
+import {useParams} from "react-router";
+import {Loader2} from "lucide-react";
 
-const PROVIDER = "schneider";
+const PAYLOAD = {
+  data_sources: [
+    {
+      tenant_id: 149180,
+      site_id: 845436,
+      building_id: 1048544,
+      start_date: "2025-11-23",
+      end_date: "2025-11-24",
+      aggregation: "DAY",
+      timezone: "Europe/Madrid"
+    }
+  ]
+};
 
 const BoardPage = () => {
   const [activeTab, setActiveTab] = useState("Context");
-  const [boardContext, setBoardContext] = useState<BoardContext | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { id } = useParams<{ id: string }>();
+  const { mutate: getContext, data: boardContext, isPending: loading } = useBoardContext();
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        if (activeTab === "Context") {
-          const context: BoardContext = await boardFunctions.getContextData(PROVIDER);
-          setBoardContext(context);
-        } 
-        // change to each correct tab when implemented
-        else if (activeTab === "Recommendations") {
-          const context: BoardContext = await boardFunctions.getContextData(PROVIDER);
-          setBoardContext(context);
-        }
-        else {
-          const context: BoardContext = await boardFunctions.getContextData(PROVIDER);
-          setBoardContext(context);
-        }
-      } catch (err) {
-        console.error(err);
-        
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (id) {
+      getContext({ id, data: PAYLOAD });
+    }
+  }, [activeTab, id, getContext]);
 
-    load();
-  }, [activeTab]);
 
   return (
     <div className="w-full h-full flex flex-col pr-10 pl-10 bg-gradient-to-b from-white to-blue-200">
       <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="mt-6">
-        {loading && <div className="text-gray-500">Loading...</div>}
+        {loading && <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+          <Loader2 size={32} className="animate-spin text-blue-600" />
+        </div>}
 
         {!loading && activeTab === "Context"  && boardContext && (
           <Context context={boardContext}  />

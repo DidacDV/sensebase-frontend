@@ -70,7 +70,7 @@ const Context = ({ context }: BoardContextProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
         <motion.div variants={itemVariants as any}>
           {context.chart1.data ? (
-            <ChartRenderer data={context.chart1.data} granularity={granularity} height="350px" />
+            <ChartRenderer data={context.chart1} granularity={granularity} height="350px" />
           ) : (
             <div className="bg-white rounded-lg shadow-md p-8 h-[350px] flex items-center justify-center text-gray-500">
               No data available
@@ -80,7 +80,7 @@ const Context = ({ context }: BoardContextProps) => {
 
         <motion.div variants={itemVariants as any}>
           {context.chart2.data ? (
-            <ChartRenderer data={context.chart2.data} granularity={granularity} height="350px" />
+            <ChartRenderer data={context.chart2} granularity={granularity} height="350px" />
           ) : (
             <div className="bg-white rounded-lg shadow-md p-8 h-[350px] flex items-center justify-center text-gray-500">
               No data available
