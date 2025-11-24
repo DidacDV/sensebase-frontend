@@ -1,3 +1,4 @@
+// TODO delete or move to models
 export interface TimeSeriesValue {
   startTime: string;
   endTime: string;
