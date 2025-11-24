@@ -21,6 +21,32 @@ export interface Board {
     updated_at: string;
 }
 
+export interface Credential {
+    id: string;
+    name: string;
+    provider_name: string;
+    provider_code: string;
+    board_name: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    last_used_at: string | null;
+}
+
+export interface TestCredentialsPayload {
+    provider_code: string;
+    credentials: Record<string, string>;
+}
+
+export interface TestCredentialsResponse {
+    valid: boolean;
+    message: string;
+    provider: string;
+    details?: Record<string, string>;
+    error_type?: string;
+}
+
+
 export interface CreateBoardPayload {
     name: string;
     description?: string;
@@ -28,10 +54,13 @@ export interface CreateBoardPayload {
     ai_model: AIModelKey;
     ui_config?: Record<string, unknown>;
     visualization_settings?: Record<string, unknown>;
-    credentials?: Record<string, string>;
+    credentials: Record<string, string>;
+    credential_name?: string;
 }
 
 export interface CreateBoardResponse {
     message: string;
     board: Board;
+    credential: Credential;
 }
+

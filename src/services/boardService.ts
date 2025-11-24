@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type {Board, CreateBoardPayload, CreateBoardResponse} from "@src/types/boardModel";
+import type {
+    Board,
+    CreateBoardPayload,
+    CreateBoardResponse,
+    TestCredentialsPayload,
+    TestCredentialsResponse
+} from "@src/types/boardModel";
 import authenticationService from "@src/services/authentication.ts";
 
 const boardApi = {
@@ -25,6 +31,10 @@ const boardApi = {
 
     delete: async (id: string): Promise<void> => {
         await authenticationService.delete(`/boards/${id}/`);
+    },
+    testCredentials: async (payload: TestCredentialsPayload): Promise<TestCredentialsResponse> => {
+        const { data } = await authenticationService.post('boards/credentials/test/', payload);
+        return data;
     },
 };
 
@@ -85,5 +95,11 @@ export function useDeleteBoard() {
             queryClient.invalidateQueries({ queryKey: boardKeys.lists() });
             queryClient.removeQueries({ queryKey: boardKeys.detail(id) });
         },
+    });
+}
+
+export function useTestCredentials() {
+    return useMutation({
+        mutationFn: boardApi.testCredentials,
     });
 }

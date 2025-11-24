@@ -1,7 +1,7 @@
-import type {Provider} from "react";
+
 import authenticationService from "@src/services/authentication.ts";
-import type {TestConnectionPayload, TestConnectionResponse} from "@src/types/providerModel.ts";
-import {useMutation, useQuery} from "@tanstack/react-query";
+import type { Provider } from "@src/types/providerModel";
+import {useQuery} from "@tanstack/react-query";
 
 const providerApi = {
     getAll: async (): Promise<Provider[]> => {
@@ -11,11 +11,6 @@ const providerApi = {
 
     getByCode: async (code: string): Promise<Provider> => {
         const { data } = await authenticationService.get(`/providers/${code}/`);
-        return data;
-    },
-
-    testConnection: async (payload: TestConnectionPayload): Promise<TestConnectionResponse> => {
-        const { data } = await authenticationService.post('/providers/test-connection/', payload);
         return data;
     },
 };
@@ -39,11 +34,5 @@ export function useProvider(code: string) {
         queryKey: providerKeys.detail(code),
         queryFn: () => providerApi.getByCode(code),
         enabled: !!code,
-    });
-}
-
-export function useTestConnection() {
-    return useMutation({
-        mutationFn: providerApi.testConnection,
     });
 }

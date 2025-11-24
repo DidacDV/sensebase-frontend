@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { FileText, Key, RotateCcw, Upload, Loader2, CheckCircle, XCircle, HelpCircle } from "lucide-react";
-import { useProvider, useTestConnection } from "@src/services/providerService";
-import type { TestConnectionResponse } from "@src/types/providerModel";
+import { useProvider  } from "@src/services/providerService";
 import {useBoardForm} from "@src/context/boardFormContext.tsx";
+import {useTestCredentials} from "@src/services/boardService.ts";
+import type {TestCredentialsResponse} from "@src/types/boardModel.ts";
 
 function formatLabel(field: string): string {
     return field.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -17,23 +18,27 @@ function getInputType(field: string): string {
 
 function CredentialsStep() {
     const { state, setCredential, setConnectionTested, areCredentialsComplete } = useBoardForm();
-    const [testResult, setTestResult] = useState<TestConnectionResponse | null>(null);
+    const [testResult, setTestResult] = useState<TestCredentialsResponse | null>(null);
 
     const { data: provider, isLoading } = useProvider(state.selectedProvider || '');
-    const testMutation = useTestConnection();
+    const testMutation = useTestCredentials();
 
     const handleTestConnection = () => {
         if (!state.selectedProvider) return;
         setTestResult(null);
         testMutation.mutate(
-            { provider: state.selectedProvider, credentials: state.credentials },
+            { provider_code: state.selectedProvider, credentials: state.credentials },
             {
                 onSuccess: (data) => {
                     setTestResult(data);
-                    setConnectionTested(data.success);
+                    setConnectionTested(data.valid);
                 },
                 onError: (error: Error) => {
-                    setTestResult({ success: false, message: error.message });
+                    setTestResult({
+                        valid: false,
+                        message: error.message,
+                        provider: state?.selectedProvider
+                    });
                     setConnectionTested(false);
                 },
             }
@@ -144,7 +149,7 @@ function CredentialsStep() {
 
                         {testResult && (
                             <div className={`flex items-center gap-2 ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
-                                {testResult.success ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                                {testResult.valid ? <CheckCircle size={20} /> : <XCircle size={20} />}
                                 <span className="font-medium">{testResult.message}</span>
                             </div>
                         )}
