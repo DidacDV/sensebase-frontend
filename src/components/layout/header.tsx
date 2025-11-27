@@ -3,46 +3,49 @@ import senseBaseLogo from "../../assets/sensebaseLogo.png";
 
 export function Header() {
   return (
-    <header className="bg-blue-50 shadow-sm">
-      <nav className="container mx-auto px-6 py-2 flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200">
+      <nav className="container mx-auto px-6 py-3 flex items-center justify-between">
         
-        {/* Logo Placeholder */}
-        <Link to="/">
-          <div className="flex items-center gap-2">
-            <img src={senseBaseLogo} alt="sensebase logo" className="h-14 w-14 object-contain" />
-            <span className="text-xl font-bold text-[#0A1A2F]">sensebase</span>
-          </div>
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2">
+          <img src={senseBaseLogo} alt="sensebase logo" className="h-10 w-10 object-contain" />
+          <span className="text-lg font-bold text-[#0A1A2F]">sensebase</span>
         </Link>
 
-        {/* Navigation */}
-        <ul className="hidden md:flex items-center gap-8 text-[#0A1A2F] font-medium">
-          <li><Link to="/demo" className="hover:text-blue-600">Demo</Link></li>
-          <li><Link to="/new" className="hover:text-blue-600">New Board</Link></li>
-          <li><Link to="/boards" className="hover:text-blue-600">Your Boards</Link></li>
-          <li><Link to="/pricing" className="hover:text-blue-600">Pricing</Link></li>
-          <li><Link to="/support" className="hover:text-blue-600">Support</Link></li>
-          <li><Link to="/signin" className="hover:text-blue-600">Sign In</Link></li>
+        {/* Center Navigation */}
+        <ul className="hidden lg:flex items-center gap-8 text-[#0A1A2F] text-sm font-medium">
+          <li><Link to="/demo" className="hover:text-gray-600 transition-colors">Demo</Link></li>
+          <li><Link to="/new" className="hover:text-gray-600 transition-colors">New Board</Link></li>
+          <li><Link to="/boards" className="hover:text-gray-600 transition-colors">Your Boards</Link></li>
+          <li><Link to="/pricing" className="hover:text-gray-600 transition-colors">Pricing</Link></li>
+          <li><Link to="/support" className="hover:text-gray-600 transition-colors">Support</Link></li>
         </ul>
 
-        {/* Get Started Button */}
-        <Link
-          to="/get-started"
-          className="
-            hidden md:block 
-            bg-gradient-to-br from-[#C7E3FF] to-[#A4CCF5] 
-            text-[#0A1A2F] 
-            font-semibold 
-            px-5 py-2 
-            rounded-full 
-            shadow-sm 
-            hover:shadow-md 
-            hover:brightness-105 
-            transition-all 
-            duration-200
-          "
-        >
-          Get Started
-        </Link>
+        {/* Right side buttons */}
+        <div className="flex items-center gap-4">
+          <Link
+            to="/signin"
+            className="text-[#0A1A2F] text-sm font-medium hover:text-gray-600 transition-colors"
+          >
+            Sign In
+          </Link>
+          <Link
+            to="/get-started"
+            className="
+              bg-[#0A1A2F]
+              text-white
+              text-sm
+              font-semibold 
+              px-5 py-2 
+              rounded-md
+              hover:bg-[#1a2a3f]
+              transition-colors
+              duration-200
+            "
+          >
+            Get Started
+          </Link>
+        </div>
 
       </nav>
     </header>
