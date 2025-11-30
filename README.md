@@ -17,20 +17,22 @@ This project uses a lightweight, modern stack to build fast and elegant interfac
 ## Getting started
 
 Clone the repository and install dependencies:
-
 ```sh
 npm install
 ```
 
-Run the development server
+Before running the application, you must configure the environment variables.
+
+Create a `.env` file in the root directory of the project.
+
+Add the `VITE_API_URL` variable to define the backend endpoint.
+
+Default development configuration:
+```env
+VITE_API_URL=http://localhost:8000/api
+```
+
+Run the development server:
 ```sh
 npm run dev
 ```
-
-## TODO features
-- a BoardPage, la chartData ha de ser de UN DELS TIPUS dels charts que tenim. com ara nomes tenim un, nomes potser d'aquest.
-- a boardContext, s'hauria de renderiztar un chart o un altra depenent del tipus rebut 
-- presets de styles per a la board
-
-## TODO code
-- Change all imports to use the @ prefix instead of being relative
