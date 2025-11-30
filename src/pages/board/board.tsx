@@ -4,6 +4,8 @@ import Context from "./components/boardContext";
 import {useBoardContext} from "@src/services/boardService.ts";
 import {useParams} from "react-router";
 import ContextSkeleton from "@src/pages/board/components/boardContextSkeleton.tsx";
+import Sidebar from "@src/components/layout/sidebar.tsx";
+
 
 const PAYLOAD = {
   data_sources: [
@@ -32,21 +34,27 @@ const BoardPage = () => {
 
 
   return (
-    <div className="w-full h-full flex flex-col pr-10 pl-10 bg-gradient-to-b from-white to-blue-200">
-      <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="flex h-full w-full bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4">
+        <Sidebar />
+        <main className="flex-1 flex flex-col h-full w-full min-w-0 relative">
+          <div className="pt-6 px-10 shrink-0 z-10">
+            <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          </div>
 
-      <div className="mt-6">
-        {loading && <ContextSkeleton />}
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 p-6">
 
-        {!loading && activeTab === "Context"  && boardContext && (
-          <Context context={boardContext}  />
-        )}
+            {loading && <ContextSkeleton />}
 
-        {/*!loading && activeTab === "Recommendations" && (
+            {!loading && activeTab === "Context"  && boardContext && (
+                <Context context={boardContext}  />
+            )}
+
+            {/*!loading && activeTab === "Recommendations" && (
           <Recommendations chartData={chartData ?? undefined} />
-        )*/}
+            )*/}
 
-      </div>
+          </div>
+        </main>
     </div>
   );
 };
