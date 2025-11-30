@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import type { EChartsOption, LineSeriesOption } from 'echarts';
-import type { TimeSeriesChartData } from '@src/models/chartModels';
+import type { TimeSeriesChartData } from '@src/models/chartModels.ts';
 
 interface AreaStackedGradientProps {
   data: TimeSeriesChartData;

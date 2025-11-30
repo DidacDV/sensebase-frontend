@@ -20,7 +20,10 @@ export interface TimeSeries {
   data: number[];
 }
 
-export type ChartStructure = TimeSeriesChartStructure | BarChartData;
+export interface ChartStructure {
+  type: string;
+  data: TimeSeriesChartStructure | BarChartData;
+}
 
 //this is just to simulate the chartstructure type for now
 export interface BarChartData {
