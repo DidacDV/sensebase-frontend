@@ -3,7 +3,7 @@ import BoardTabs from "./components/boardTabs";
 import Context from "./components/boardContext";
 import {useBoardContext} from "@src/services/boardService.ts";
 import {useParams} from "react-router";
-import {Loader2} from "lucide-react";
+import ContextSkeleton from "@src/pages/board/components/boardContextSkeleton.tsx";
 
 const PAYLOAD = {
   data_sources: [
@@ -36,9 +36,7 @@ const BoardPage = () => {
       <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="mt-6">
-        {loading && <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-          <Loader2 size={32} className="animate-spin text-blue-600" />
-        </div>}
+        {loading && <ContextSkeleton />}
 
         {!loading && activeTab === "Context"  && boardContext && (
           <Context context={boardContext}  />
