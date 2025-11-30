@@ -1,9 +1,5 @@
 import { type ChartStructure } from "@src/models/chartModels";
 
-export interface ChartData {
-  data: ChartStructure; 
-}
-
 export interface Insights {
   insight1: string;
   insight2: string;
@@ -22,8 +18,8 @@ export interface Keypoints {
 }
 
 export interface BoardContext {
-  chart1: ChartData;
-  chart2: ChartData;
+  chart1: ChartStructure;
+  chart2: ChartStructure;
   mainContextDescription: string;
   secondaryContextDescription: string;
   insights: Insights;
