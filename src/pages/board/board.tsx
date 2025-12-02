@@ -35,7 +35,7 @@ const BoardPage = () => {
 
   return (
       <div className="flex h-full w-full bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4">
-        <Sidebar />
+        <Sidebar activeBoardId={id ?? ""}/>
         <main className="flex-1 flex flex-col h-full w-full min-w-0 relative">
           <div className="pt-6 px-10 shrink-0 z-10">
             <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />

@@ -8,6 +8,7 @@ import type {
 } from "@src/types/boardModel";
 import authenticationService from "@src/services/authentication.ts";
 import type {BoardContext} from "@src/models/boardModel.ts";
+import type {SidebarNode} from "@src/types/sidebar.ts";
 
 const boardApi = {
     getAll: async (): Promise<Board[]> => {
@@ -22,6 +23,11 @@ const boardApi = {
 
     getContext: async (id: string, payload: any): Promise<BoardContext> => {
         const { data } = await authenticationService.post(`/boards/${id}/context/`, payload);
+        return data;
+    },
+
+    getDataSources: async (boardId: string): Promise<SidebarNode[]> => {
+        const { data } = await authenticationService.get(`/boards/${boardId}/data-sources/`);
         return data;
     },
 
@@ -50,6 +56,7 @@ export const boardKeys = {
     list: (filters: Record<string, unknown>) => [...boardKeys.lists(), filters] as const,
     details: () => [...boardKeys.all, 'detail'] as const,
     detail: (id: string) => [...boardKeys.details(), id] as const,
+    dataSources: (boardId: string) => [...boardKeys.all, 'data-sources', boardId] as const,
 };
 
 export function useBoards() {
@@ -64,6 +71,14 @@ export function useBoard(id: string) {
         queryKey: boardKeys.detail(id),
         queryFn: () => boardApi.getById(id),
         enabled: !!id,
+    });
+}
+
+export function useBoardDataSources(boardId: string) {
+    return useQuery({
+        queryKey: boardKeys.dataSources(boardId),
+        queryFn: () => boardApi.getDataSources(boardId),
+        enabled: !!boardId,
     });
 }
 
@@ -115,4 +130,6 @@ export function useTestCredentials() {
     return useMutation({
         mutationFn: boardApi.testCredentials,
     });
+
+
 }

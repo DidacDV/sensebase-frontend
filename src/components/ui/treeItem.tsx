@@ -41,7 +41,6 @@ export const TreeItem = ({ node, level = 0, selectedIds, toggleSelection }: Tree
                 />
             )}
             <motion.div
-                layout
                 className={cn(
                     "group flex items-center gap-2 py-2 pr-2 rounded-lg cursor-pointer transition-colors relative z-10",
                     level === 0 ? "mb-1" : "my-0.5",

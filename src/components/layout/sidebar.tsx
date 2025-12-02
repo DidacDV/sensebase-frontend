@@ -7,11 +7,18 @@ import {
     PanelLeftOpen
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SIDEBAR_DATA } from "@src/types/sidebar.ts";
+import {SIDEBAR_DATA, type SidebarNode} from "@src/types/sidebar.ts";
 import {cn} from "@src/utils.ts";
 import {TreeItem} from "@src/components/ui/treeItem.tsx";
+import {useBoardDataSources} from "@src/services/boardService.ts";
 
-export const Sidebar = () => {
+interface SidebarProps {
+    activeBoardId: string;
+}
+
+export const Sidebar = ({ activeBoardId }: SidebarProps) => {
+    const { data: dataSources, isLoading, isError } = useBoardDataSources(activeBoardId);
+
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(['1', '1-1', '1-1-1', '1-1-2']));
 
@@ -20,6 +27,39 @@ export const Sidebar = () => {
         if (newSet.has(id)) newSet.delete(id);
         else newSet.add(id);
         setSelectedIds(newSet);
+    };
+    const renderTreeContent = () => {
+        if (isLoading) {
+            return <div className="p-4 text-center text-sm text-slate-500">Loading sources...</div>;
+        }
+
+        if (isError) {
+            return <div className="p-4 text-center text-sm text-red-500">Error loading data sources.</div>;
+        }
+
+        // Use the fetched dataSources instead of the local SIDEBAR_DATA
+        if (dataSources && dataSources.length > 0) {
+            return (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="w-full overflow-visible"
+                >
+                    {dataSources.map((node: SidebarNode) => (
+                        <TreeItem
+                            key={node.id}
+                            node={node}
+                            selectedIds={selectedIds}
+                            toggleSelection={toggleSelection}
+                        />
+                    ))}
+                </motion.div>
+            );
+        }
+
+        return <div className="p-4 text-center text-sm text-slate-500">No data sources available.</div>;
     };
 
     return (
@@ -47,21 +87,7 @@ export const Sidebar = () => {
             {/* Scrollable Tree Content - Only visible when expanded */}
             <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
                 {!isCollapsed ? (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        {SIDEBAR_DATA.map((node) => (
-                            <TreeItem
-                                key={node.id}
-                                node={node}
-                                selectedIds={selectedIds}
-                                toggleSelection={toggleSelection}
-                            />
-                        ))}
-                    </motion.div>
+                    renderTreeContent()
                 ) : (
                     <div className="flex flex-col items-center gap-4 mt-4 opacity-50">
                         <Server size={20} className="text-slate-400" />
