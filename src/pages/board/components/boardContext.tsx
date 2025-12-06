@@ -12,7 +12,7 @@ interface BoardContextProps {
 
 const Context = ({ context }: BoardContextProps) => {
 
-  const [granularity, setGranularity] = useState<TimeGranularity>('hourly');
+  const [granularity] = useState<TimeGranularity>('hourly');
 
   const insightCards = [
     { color: "blueLight", description: context.insights.insight1 },
