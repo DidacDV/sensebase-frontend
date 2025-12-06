@@ -25,6 +25,6 @@ jobs:
 
       - name: Deploy to Netlify
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: nfp_FRLCaBMEbo82yRvbYFZNTdKvks3d61E8d1cc
+          NETLIFY_SITE_ID: 24b095fd-3dca-4ad0-8e72-efffb40249c0
         run: npx netlify deploy --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID" --prod --dir=dist
