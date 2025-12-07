@@ -1,5 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type {AuthTokens, LoginCredentials, LoginResponse, UserData} from "@src/types/authenticationModel.ts";
+import type {
+    AuthTokens,
+    LoginCredentials,
+    LoginResponse,
+    RegisterCredentials,
+    UserData
+} from "@src/types/authenticationModel.ts";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const ACCESS_TOKEN_KEY = 'authToken';
@@ -85,6 +91,12 @@ authenticationService.interceptors.response.use(
 export const authApi = {
     login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
         const response = await authenticationService.post<LoginResponse>('/users/login/', credentials);
+        tokenManager.setTokens(response.data.tokens);
+        return response.data;
+    },
+
+    register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
+        const response = await authenticationService.post<LoginResponse>('/users/register/', credentials);
         tokenManager.setTokens(response.data.tokens);
         return response.data;
     },

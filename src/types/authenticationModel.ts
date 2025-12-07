@@ -3,6 +3,12 @@ export interface LoginCredentials {
     password: string;
 }
 
+export interface RegisterCredentials {
+    email: string;
+    password: string;
+    password_confirm: string;
+}
+
 export interface AuthTokens {
     access: string;
     refresh: string;

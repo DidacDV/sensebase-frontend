@@ -37,7 +37,7 @@ function CredentialsStep() {
                     setTestResult({
                         valid: false,
                         message: error.message,
-                        provider: state?.selectedProvider
+                        provider: state.selectedProvider ?? ''
                     });
                     setConnectionTested(false);
                 },
@@ -148,7 +148,7 @@ function CredentialsStep() {
                         </button>
 
                         {testResult && (
-                            <div className={`flex items-center gap-2 ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className={`flex items-center gap-2 ${testResult.valid ? 'text-green-600' : 'text-red-600'}`}>
                                 {testResult.valid ? <CheckCircle size={20} /> : <XCircle size={20} />}
                                 <span className="font-medium">{testResult.message}</span>
                             </div>
