@@ -4,16 +4,16 @@ import senseBaseLogo from "../../assets/sensebaseLogo.png";
 export function Header() {
   return (
     <header className="bg-white border-b border-gray-200">
-      <nav className="container mx-auto px-6 py-3 flex items-center justify-between">
+      <nav className="container mx-auto px-6 py-5 flex items-center justify-between">
         
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={senseBaseLogo} alt="sensebase logo" className="h-10 w-10 object-contain" />
-          <span className="text-lg font-bold text-[#0A1A2F]">sensebase</span>
+        <Link to="/" className="flex items-center gap-3">
+          <img src={senseBaseLogo} alt="sensebase logo" className="h-14 w-14 object-contain" />
+          <span className="text-xl font-bold text-[#0A1A2F]">sensebase</span>
         </Link>
 
         {/* Center Navigation */}
-        <ul className="hidden lg:flex items-center gap-8 text-[#0A1A2F] text-sm font-medium">
+        <ul className="hidden lg:flex items-center gap-10 text-[#0A1A2F] text-base font-medium">
           <li><Link to="/demo" className="hover:text-gray-600 transition-colors">Demo</Link></li>
           <li><Link to="/new" className="hover:text-gray-600 transition-colors">New Board</Link></li>
           <li><Link to="/boards" className="hover:text-gray-600 transition-colors">Your Boards</Link></li>
@@ -22,10 +22,10 @@ export function Header() {
         </ul>
 
         {/* Right side buttons */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <Link
             to="/signin"
-            className="text-[#0A1A2F] text-sm font-medium hover:text-gray-600 transition-colors"
+            className="text-[#0A1A2F] text-base font-medium hover:text-gray-600 transition-colors"
           >
             Sign In
           </Link>
@@ -34,9 +34,9 @@ export function Header() {
             className="
               bg-[#0A1A2F]
               text-white
-              text-sm
+              text-base
               font-semibold 
-              px-5 py-2 
+              px-7 py-3 
               rounded-md
               hover:bg-[#1a2a3f]
               transition-colors

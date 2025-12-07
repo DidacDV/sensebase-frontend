@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import sensebaseLogo from '../../assets/sensebaseLogo.png';
 
 function Footer() {
   const footerSections = [
@@ -8,20 +9,20 @@ function Footer() {
         "Platform overview",
         "Data connectors",
         "AI models",
-        "Visualization tools",
-        "Integration options",
-        "API documentation"
+        "Visualization",
+        "Integration",
+        "API docs"
       ]
     },
     {
       title: "Solutions",
       links: [
         "Energy sector",
-        "Business analytics",
+        "Analytics",
         "Real-time monitoring",
-        "Custom dashboards",
-        "Enterprise solutions",
-        "Industry insights"
+        "Dashboards",
+        "Enterprise",
+        "Insights"
       ]
     },
     {
@@ -41,8 +42,8 @@ function Footer() {
         "About us",
         "Careers",
         "Contact",
-        "Privacy policy",
-        "Terms of service",
+        "Privacy",
+        "Terms",
         "Security"
       ]
     }
@@ -193,7 +194,12 @@ function Footer() {
 
           {/* Logo and Legal */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-            <div>
+            <div className="flex items-center gap-3 md:gap-4">
+              <img 
+                src={sensebaseLogo} 
+                alt="Sensebase Logo" 
+                className="w-12 h-12 md:w-16 md:h-16 object-contain"
+              />
               <h2 className="text-6xl md:text-8xl font-bold tracking-tight">
                 sensebase
                 <span className="inline-block w-3 h-3 md:w-4 md:h-4 bg-[#1A2B3C] rounded-full ml-2 mb-4"></span>
@@ -202,9 +208,9 @@ function Footer() {
             <div className="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm">
               <span className="opacity-70">© 2025 Sensebase</span>
               <a href="#" className="hover:underline">Legal</a>
-              <a href="#" className="hover:underline">Privacy policy</a>
-              <a href="#" className="hover:underline">Contact policy</a>
-              <a href="#" className="hover:underline">Supplier code of conduct</a>
+              <a href="#" className="hover:underline">Privacy</a>
+              <a href="#" className="hover:underline">Contact</a>
+              <a href="#" className="hover:underline">Supplier code</a>
             </div>
           </div>
         </div>

@@ -38,7 +38,7 @@ function GeneralSolutionsSection () {
   ];
 
   return (
-    <section className="py-20 px-6 bg-gradient-to-br from-[#E8EBF0] to-[#F5F5F5] min-h-screen flex items-center justify-center">
+    <section className="py-20 px-6 bg-gradient-to-b from-white via-[#5BA89D]/5 to-white min-h-screen flex items-center justify-center">
       <div className="max-w-7xl mx-auto">
         {/* Title */}
         <motion.div 
@@ -72,35 +72,95 @@ function GeneralSolutionsSection () {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="bg-white rounded-3xl p-12 shadow-xl relative overflow-hidden">
-              {/* Grid of crypto icons */}
-              <div className="grid grid-cols-6 gap-4 relative z-10">
-                {Array.from({ length: 36 }).map((_, idx) => (
-                  <motion.div
-                    key={idx}
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
-                    style={{
-                      backgroundColor: [
-                        '#FF6B35', '#F7931A', '#627EEA', '#26A17B', 
-                        '#8247E5', '#E84142', '#2775CA', '#F0B90B',
-                        '#003366', '#5BA89D', '#4A7FA7', '#1A3D63'
-                      ][idx % 12]
-                    }}
-                    initial={{ scale: 0, rotate: -180 }}
-                    whileInView={{ scale: 1, rotate: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ 
-                      duration: 0.5, 
-                      delay: idx * 0.02,
-                      type: "spring",
-                      stiffness: 200
-                    }}
-                  >
-                    <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
-                  </motion.div>
-                ))}
-              </div>
+            <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
+              {/* Dashboard mockup */}
+              <div className="space-y-6">
+                {/* Header with metrics */}
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { value: "2.4k", label: "Active Sources", color: "#5BA89D" },
+                    { value: "89%", label: "Accuracy", color: "#4A7FA7" },
+                    { value: "Real-time", label: "Updates", color: "#1A3D63" }
+                  ].map((metric, idx) => (
+                    <motion.div
+                      key={metric.label}
+                      className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    >
+                      <div className="text-2xl font-bold" style={{ color: metric.color }}>
+                        {metric.value}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">{metric.label}</div>
+                    </motion.div>
+                  ))}
+                </div>
 
+                {/* Chart visualization */}
+                <motion.div
+                  className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                >
+                  <div className="flex items-end justify-between h-32 gap-2">
+                    {[65, 45, 80, 55, 90, 70, 85, 60].map((height, idx) => (
+                      <motion.div
+                        key={idx}
+                        className="flex-1 rounded-t-lg"
+                        style={{
+                          background: `linear-gradient(to top, ${['#5BA89D', '#4A7FA7', '#1A3D63'][idx % 3]}, ${['#5BA89D', '#4A7FA7', '#1A3D63'][idx % 3]}dd)`,
+                          height: `${height}%`
+                        }}
+                        initial={{ height: 0 }}
+                        whileInView={{ height: `${height}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.5 + idx * 0.1 }}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-between mt-4 text-xs text-gray-500">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                  </div>
+                </motion.div>
+
+                {/* Data sources indicators */}
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: "Energy Data", status: "Active", color: "#5BA89D" },
+                    { label: "Market Trends", status: "Syncing", color: "#4A7FA7" }
+                  ].map((source, idx) => (
+                    <motion.div
+                      key={source.label}
+                      className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 flex items-center gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.8 + idx * 0.1 }}
+                    >
+                      <motion.div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: source.color }}
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      <div className="flex-1">
+                        <div className="text-xs font-medium text-gray-700">{source.label}</div>
+                        <div className="text-xs text-gray-500">{source.status}</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.div>
 

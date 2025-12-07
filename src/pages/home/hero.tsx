@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 function HeroSection() {
   return (
     <motion.section 
-      className="relative min-h-screen flex items-center px-6 lg:px-16 overflow-hidden bg-white"
+      className="relative min-h-screen flex items-center px-6 lg:px-16 pb-32 overflow-hidden bg-white"
     >
       <div className="max-w-7xl mx-auto w-full">
         <div className="max-w-3xl">

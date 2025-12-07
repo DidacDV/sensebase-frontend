@@ -1,4 +1,5 @@
-// Step Card Component
+import { Icon } from '@iconify/react';
+
 interface StepCardProps {
   number: string;
   title: string;
@@ -6,28 +7,27 @@ interface StepCardProps {
   color?: string;
 }
 
-//to use it later,  make title and descrpition optional 
+const STEP_ICONS: Record<string, string> = {
+  "1": "mdi:database-check",
+  "2": "mdi:chart-bar",
+  "3": "mdi:lightning-bolt"
+};
+
 function StepCard({ number, title, description, color = "bg-[#5BA89D]" }: StepCardProps) {
   return (
-    <div className={`${color} rounded-3xl p-8 shadow-xl text-white flex flex-col min-h-[450px] relative overflow-hidden`}>
-      {/* Icon placeholder at top */}
-      <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mb-6">
-        <div className="w-6 h-6 border-2 border-white rounded"></div>
+    <div className={`${color} rounded-3xl p-6 md:p-8 shadow-xl text-white flex flex-col min-h-[400px] md:min-h-[450px] relative overflow-hidden`}>
+      <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl flex items-center justify-center mb-6 md:mb-8 shadow-lg">
+        <Icon icon={STEP_ICONS[number] || "mdi:help-circle"} className="w-12 h-12 text-[#1A2B3C]" />
       </div>
       
-      {/* Title and description */}
-      <h3 className="text-2xl md:text-3xl font-bold mb-4">{title}</h3>
-      <p className="text-white text-opacity-90 leading-relaxed text-base mb-6 flex-grow">
+      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-3 md:mb-4">{title}</h3>
+      <p className="text-white/90 leading-relaxed text-sm md:text-base mb-4 md:mb-6 flex-grow">
         {description}
       </p>
       
-      {/* Learn more link */}
-      <button className="text-white font-semibold text-left underline mb-8">
+      <button className="text-white font-semibold text-left underline hover:text-white/80 transition-colors">
         Learn more
       </button>
-      
-      {/* Single white rectangle */}
-      <div className="mt-auto h-40 bg-white rounded-xl"></div>
     </div>
   );
 }
