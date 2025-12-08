@@ -9,6 +9,11 @@ import type {
 import authenticationService from "@src/services/authentication.ts";
 import type {BoardContext} from "@src/models/boardModel.ts";
 
+export const fetchBoardContext = async (id: string, payload: any): Promise<BoardContext> => {
+    const { data } = await authenticationService.post(`/boards/${id}/context/`, payload);
+    return data;
+};
+
 const boardApi = {
     getAll: async (): Promise<Board[]> => {
         const { data } = await authenticationService.get('/boards/');
@@ -17,11 +22,6 @@ const boardApi = {
 
     getById: async (id: string): Promise<Board> => {
         const { data } = await authenticationService.get(`/boards/${id}/`);
-        return data;
-    },
-
-    getContext: async (id: string, payload: any): Promise<BoardContext> => {
-        const { data } = await authenticationService.post(`/boards/${id}/context/`, payload);
         return data;
     },
 
@@ -67,12 +67,21 @@ export function useBoard(id: string) {
     });
 }
 
-export function useBoardContext() {
-    return useMutation({
-        mutationFn: (payload: { id: string; data: any }) =>
-            boardApi.getContext(payload.id, payload.data),
-    })
-}
+export const useBoardContext = (params: { id?: string, data: any }) => {
+    return useQuery({
+        //if id changes, new query is sent
+        queryKey: ['board-context', params.id],
+
+        queryFn: () => fetchBoardContext(params.id!, params.data),
+
+        enabled: !!params.id,
+
+        //how long we keep the data
+        staleTime: 1000 * 60 * 10, 
+        
+        gcTime: 1000 * 60 * 15,
+    });
+};
 
 export function useCreateBoard() {
     const queryClient = useQueryClient();
