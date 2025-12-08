@@ -1,21 +1,33 @@
-// Step Card Component
+import { Icon } from '@iconify/react';
+
 interface StepCardProps {
   number: string;
   title: string;
   description: string;
+  color?: string;
 }
 
-//to use it later,  make title and descrpition optional 
-function StepCard({ number, title, description }: StepCardProps) {
+const STEP_ICONS: Record<string, string> = {
+  "1": "mdi:database-check",
+  "2": "mdi:chart-bar",
+  "3": "mdi:lightning-bolt"
+};
+
+function StepCard({ number, title, description, color = "bg-[#5BA89D]" }: StepCardProps) {
   return (
-    <div className="flex flex-col items-center text-center px-6">
-      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#1A3D63] to-[#4A7FA7] flex items-center justify-center mb-8 shadow-lg">
-        <span className="text-white text-5xl font-bold">{number}</span>
+    <div className={`${color} rounded-3xl p-6 md:p-8 shadow-xl text-white flex flex-col min-h-[400px] md:min-h-[450px] relative overflow-hidden`}>
+      <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl flex items-center justify-center mb-6 md:mb-8 shadow-lg">
+        <Icon icon={STEP_ICONS[number] || "mdi:help-circle"} className="w-12 h-12 text-[#1A2B3C]" />
       </div>
-      <h3 className="text-[#0A1931] font-bold text-2xl md:text-3xl mb-4">{title}</h3>
-      <p className="text-gray-600 leading-relaxed text-lg md:text-xl max-w-sm">
+      
+      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-3 md:mb-4">{title}</h3>
+      <p className="text-white/90 leading-relaxed text-sm md:text-base mb-4 md:mb-6 flex-grow">
         {description}
       </p>
+      
+      <button className="text-white font-semibold text-left underline hover:text-white/80 transition-colors">
+        Learn more
+      </button>
     </div>
   );
 }
