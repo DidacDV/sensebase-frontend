@@ -22,31 +22,29 @@ const PAYLOAD = {
 const BoardPage = () => {
   const [activeTab, setActiveTab] = useState("Context");
   const { id } = useParams<{ id: string }>();
-  const { mutate: getContext, data: boardContext, isPending: loading } = useBoardContext();
 
-  useEffect(() => {
-    if (id) {
-      getContext({ id, data: PAYLOAD });
-    }
-  }, [activeTab, id, getContext]);
+  const { 
+    data: boardContext, 
+    isLoading: loading, 
+    isError 
+  } = useBoardContext({ 
+    id, 
+    data: PAYLOAD 
+  });
+
 
 
   return (
-    <div className="w-full h-full flex flex-col pr-10 pl-10 bg-gradient-to-b from-white to-blue-200">
-      <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div className="mt-6">
-        {loading && <ContextSkeleton />}
-
-        {!loading && activeTab === "Context"  && boardContext && (
-          <Context context={boardContext}  />
-        )}
-
-        {/*!loading && activeTab === "Recommendations" && (
-          <Recommendations chartData={chartData ?? undefined} />
-        )*/}
-
-      </div>
+    <div className="pr-10 pl-10">
+       <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+       
+       <div className="mt-6">
+          {loading && <ContextSkeleton />}
+          
+          {!loading && activeTab === "Context" && boardContext && (
+             <Context context={boardContext} />
+          )}
+       </div>
     </div>
   );
 };

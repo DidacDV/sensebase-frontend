@@ -1,69 +1,59 @@
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
+
+export type InfoCardType = 'alert' | 'tip' | 'stat' | 'neutral';
 
 export interface InfoCardProps {
-  color: 'blueLight' | 'blueSky' | 'blueOcean' | 'blueRoyal' | 'blueMid' | 'blueDeep';
+  type: InfoCardType;
+  title: string;
   description: string;
   icon?: React.ReactNode;
 }
 
-// TODO USE PALETTE PASSED BY PROPS
-const InfoCard = ({ color, description, icon }: InfoCardProps) => {
-  const colorClasses = {
-    blueLight: {
-      bg: 'bg-gradient-to-br from-blue-50 to-blue-100',
-      border: 'border-blue-200',
-      shadow: 'hover:shadow-blue-200/50',
-      iconBg: 'bg-blue-300'
+const InfoCard = ({ type, title, description, icon }: InfoCardProps) => {
+  const styles = {
+    alert: {
+      border: 'border-l-4 border-amber-500',
+      iconBg: 'bg-amber-100 text-amber-700',
     },
-    blueSky: {
-      bg: 'bg-gradient-to-br from-blue-100 to-blue-200',
-      border: 'border-blue-300',
-      shadow: 'hover:shadow-blue-300/50',
-      iconBg: 'bg-blue-400'
+    tip: {
+      border: 'border-l-4 border-[#5BA89D]', // Teal
+      iconBg: 'bg-[#5BA89D]/10 text-[#5BA89D]',
     },
-    blueOcean: {
-      bg: 'bg-gradient-to-br from-blue-200 to-blue-300',
-      border: 'border-blue-400',
-      shadow: 'hover:shadow-blue-400/50',
-      iconBg: 'bg-blue-500'
+    stat: {
+      border: 'border-l-4 border-[#4A7FA7]', // Blue
+      iconBg: 'bg-[#4A7FA7]/10 text-[#4A7FA7]',
     },
-    blueRoyal: {
-      bg: 'bg-gradient-to-br from-blue-300 to-blue-400',
-      border: 'border-blue-500',
-      shadow: 'hover:shadow-blue-500/50',
-      iconBg: 'bg-blue-600'
-    },
-    blueMid: {
-      bg: 'bg-gradient-to-br from-blue-400 to-blue-500',
-      border: 'border-blue-600',
-      shadow: 'hover:shadow-blue-600/50',
-      iconBg: 'bg-blue-700'
-    },
-    blueDeep: {
-      bg: 'bg-gradient-to-br from-blue-600 to-blue-700',
-      border: 'border-blue-800',
-      shadow: 'hover:shadow-blue-800/50',
-      iconBg: 'bg-blue-900'
-    },
+    neutral: {
+      border: 'border-l-4 border-[#1A3D63]', // Navy
+      iconBg: 'bg-[#1A3D63]/10 text-[#1A3D63]',
+    }
   };
 
-  const classes = colorClasses[color];
+  const currentStyle = styles[type] || styles.neutral;
 
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={`${classes.bg} rounded-xl p-2 shadow-md ${classes.shadow} h-20 transition-shadow duration-300 cursor-default`}
+      whileHover={{ scale: 1.01, y: -2 }}
+      className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 ${currentStyle.border}`}
     >
-      <div className="flex items-start gap-3">
-        {icon && (
-          <div className={`${classes.iconBg} rounded-lg p-1 flex-shrink-0 shadow-sm`}>
-            {icon}
-          </div>
-        )}
-        <p className="text-black font-medium leading-relaxed flex-1">
-          {description}
-        </p>
+      <div className="flex items-start gap-4">
+        {/* If you pass an icon, it renders here, otherwise we use a default based on type */}
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStyle.iconBg}`}>
+          {icon || (
+            <span className="font-bold text-lg">
+              {type === 'alert' ? '!' : type === 'stat' ? '%' : 'i'}
+            </span>
+          )}
+        </div>
+        
+        <div className="flex-1">
+          <h5 className="font-semibold text-gray-900 text-sm uppercase tracking-wide mb-1">
+            {title}
+          </h5>
+          <p className="text-gray-600 text-sm leading-relaxed">
+            {description}
+          </p>
+        </div>
       </div>
     </motion.div>
   );

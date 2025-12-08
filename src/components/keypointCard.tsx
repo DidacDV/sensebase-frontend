@@ -3,20 +3,25 @@ import { motion } from "framer-motion";
 interface KeypointCardProps {
   title: string;
   description: string;
+  index?: number;
 }
 
-const KeypointCard = ({ title, description }: KeypointCardProps) => {
+const KeypointCard = ({ title, description, index = 0 }: KeypointCardProps) => {
+  // Cycle through the palette for variety if needed, or stick to one accent
+  const borderColors = ["border-[#5BA89D]", "border-[#4A7FA7]", "border-[#1A3D63]"];
+  const accentColor = borderColors[index % borderColors.length];
+
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="bg-gradient-to-br from-blue-300 to-blue-400 p-2 rounded-xl shadow-md h-26 overflow-hidden"
+      whileHover={{ y: -4 }}
+      className={`bg-white p-5 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] 
+      border-l-4 ${accentColor} h-full flex flex-col`}
     >
-      <h4 className="font-semibold text-[#061e37] mb-2">
+      <h4 className="font-bold text-[#1A3D63] mb-2 text-lg">
         {title}
       </h4>
 
-      <p className="text-gray-900 text-sm whitespace-normal wrap-break-word leading-snug">
+      <p className="text-gray-600 text-sm leading-relaxed flex-grow">
         {description}
       </p>
     </motion.div>
