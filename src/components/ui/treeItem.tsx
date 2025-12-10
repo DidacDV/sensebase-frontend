@@ -28,6 +28,7 @@ export const TreeItem = ({ node, level = 0, selectedIds, toggleSelection }: Tree
             case 'provider': return <Server size={14} className="text-blue-500" />;
             case 'group': return <FolderOpen size={14} className="text-blue-400" />;
             case 'site': return <MapPin size={14} className="text-slate-400" />;
+            case 'building': return <Building2  size={14} className="text-slate-400" />;
             default: return <Building2 size={14} className="text-slate-400" />;
         }
     };
@@ -60,12 +61,13 @@ export const TreeItem = ({ node, level = 0, selectedIds, toggleSelection }: Tree
                     </motion.div>
                 </div>
 
-                <input
+                { node.type === 'building' && <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={handleCheck}
                     className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600 shrink-0"
                 />
+                }
 
                 <div className="flex-1 flex items-center gap-2 min-w-0" onClick={handleCheck}>
                     {getIcon()}

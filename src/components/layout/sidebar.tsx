@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import {
     MapPin,
     Server,
@@ -7,20 +7,22 @@ import {
     PanelLeftOpen
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import {SIDEBAR_DATA, type SidebarNode} from "@src/types/sidebar.ts";
+import {type SidebarNode} from "@src/types/sidebar.ts";
 import {cn} from "@src/utils.ts";
 import {TreeItem} from "@src/components/ui/treeItem.tsx";
 import {useBoardDataSources} from "@src/services/boardService.ts";
+import type {DataSourcesResponse} from "@src/types/boardModel.ts";
 
 interface SidebarProps {
     activeBoardId: string;
+    onSelectionChange: (selectedIds: Set<string>, allDataSources: DataSourcesResponse) => void;
 }
 
-export const Sidebar = ({ activeBoardId }: SidebarProps) => {
-    const { data: dataSources, isLoading, isError } = useBoardDataSources(activeBoardId);
+export const Sidebar = ({ activeBoardId, onSelectionChange }: SidebarProps) => {
+    const { data: queryData, isLoading, isError } = useBoardDataSources(activeBoardId);
 
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(['1', '1-1', '1-1-1', '1-1-2']));
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     const toggleSelection = (id: string) => {
         const newSet = new Set(selectedIds);
@@ -28,7 +30,13 @@ export const Sidebar = ({ activeBoardId }: SidebarProps) => {
         else newSet.add(id);
         setSelectedIds(newSet);
     };
+
+    useEffect(() => {
+        onSelectionChange(selectedIds, queryData);
+    }, [selectedIds, onSelectionChange, queryData]);
+
     const renderTreeContent = () => {
+        const dataSources = queryData?.dataSources;
         if (isLoading) {
             return <div className="p-4 text-center text-sm text-slate-500">Loading sources...</div>;
         }

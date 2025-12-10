@@ -1,3 +1,5 @@
+import type {SidebarNode} from "@src/types/sidebar.ts";
+
 export const AI_MODELS = {
     gpt4: 'GPT-4',
     gpt35: 'GPT-3.5',
@@ -62,5 +64,10 @@ export interface CreateBoardResponse {
     message: string;
     board: Board;
     credential: Credential;
+}
+
+export interface DataSourcesResponse {
+    tenantId: number;
+    dataSources: SidebarNode[];
 }
 

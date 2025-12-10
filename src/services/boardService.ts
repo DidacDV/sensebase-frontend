@@ -2,13 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
     Board,
     CreateBoardPayload,
-    CreateBoardResponse,
+    CreateBoardResponse, DataSourcesResponse,
     TestCredentialsPayload,
     TestCredentialsResponse
 } from "@src/types/boardModel";
 import authenticationService from "@src/services/authentication.ts";
 import type {BoardContext} from "@src/models/boardModel.ts";
-import type {SidebarNode} from "@src/types/sidebar.ts";
 
 const boardApi = {
     getAll: async (): Promise<Board[]> => {
@@ -26,7 +25,7 @@ const boardApi = {
         return data;
     },
 
-    getDataSources: async (boardId: string): Promise<SidebarNode[]> => {
+    getDataSources: async (boardId: string): Promise<DataSourcesResponse> => {
         const { data } = await authenticationService.get(`/boards/${boardId}/data-sources/`);
         return data;
     },
@@ -75,7 +74,7 @@ export function useBoard(id: string) {
 }
 
 export function useBoardDataSources(boardId: string) {
-    return useQuery({
+    return useQuery<DataSourcesResponse>({
         queryKey: boardKeys.dataSources(boardId),
         queryFn: () => boardApi.getDataSources(boardId),
         enabled: !!boardId,
