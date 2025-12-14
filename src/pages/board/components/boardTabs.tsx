@@ -6,7 +6,7 @@ interface BoardTabsProps {
 }
 
 const BoardTabs: React.FC<BoardTabsProps> = ({ activeTab, setActiveTab }) => {
-    const tabs = ["Context", "Recommendations", "Tariff calculator"];
+    const tabs = ["Context", "Recommendations", "Tariff simulator", "Cost optimization"];
 
     return (
         <div className="flex border-b border-gray-300 mt-3 w-full relative">
