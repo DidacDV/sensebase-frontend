@@ -25,3 +25,5 @@ dist-ssr
 /src/mockdata
 .env
 package-lock.json
+# Local Netlify folder
+.netlify

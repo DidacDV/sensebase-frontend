@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
     Board,
     CreateBoardPayload,
-    CreateBoardResponse,
+    CreateBoardResponse, DataSourcesResponse,
     TestCredentialsPayload,
     TestCredentialsResponse
 } from "@src/types/boardModel";
@@ -14,6 +14,7 @@ export const fetchBoardContext = async (id: string, payload: any): Promise<Board
     return data;
 };
 
+
 const boardApi = {
     getAll: async (): Promise<Board[]> => {
         const { data } = await authenticationService.get('/boards/');
@@ -22,6 +23,16 @@ const boardApi = {
 
     getById: async (id: string): Promise<Board> => {
         const { data } = await authenticationService.get(`/boards/${id}/`);
+        return data;
+    },
+
+    getContext: async (id: string, payload: any): Promise<BoardContext> => {
+        const { data } = await authenticationService.post(`/boards/${id}/context/`, payload);
+        return data;
+    },
+
+    getDataSources: async (boardId: string): Promise<DataSourcesResponse> => {
+        const { data } = await authenticationService.get(`/boards/${boardId}/data-sources/`);
         return data;
     },
 
@@ -50,6 +61,7 @@ export const boardKeys = {
     list: (filters: Record<string, unknown>) => [...boardKeys.lists(), filters] as const,
     details: () => [...boardKeys.all, 'detail'] as const,
     detail: (id: string) => [...boardKeys.details(), id] as const,
+    dataSources: (boardId: string) => [...boardKeys.all, 'data-sources', boardId] as const,
 };
 
 export function useBoards() {
@@ -67,21 +79,27 @@ export function useBoard(id: string) {
     });
 }
 
-export const useBoardContext = (params: { id?: string, data: any }) => {
-    return useQuery({
-        //if id changes, new query is sent
-        queryKey: ['board-context', params.id],
-
-        queryFn: () => fetchBoardContext(params.id!, params.data),
-
-        enabled: !!params.id,
-
-        //how long we keep the data
-        staleTime: 1000 * 60 * 10, 
-        
-        gcTime: 1000 * 60 * 15,
+export function useBoardContext() {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: any }) => 
+            fetchBoardContext(id, data),
+        onSuccess: (responseData, variables) => {
+            const cacheKey = ['board-context', variables.id, JSON.stringify(variables.data)];
+            
+            queryClient.setQueryData(cacheKey, responseData);
+        },
     });
-};
+}
+
+export function useBoardDataSources(boardId: string) {
+    return useQuery<DataSourcesResponse>({
+        queryKey: boardKeys.dataSources(boardId),
+        queryFn: () => boardApi.getDataSources(boardId),
+        enabled: !!boardId,
+    });
+}
 
 export function useCreateBoard() {
     const queryClient = useQueryClient();
@@ -124,4 +142,6 @@ export function useTestCredentials() {
     return useMutation({
         mutationFn: boardApi.testCredentials,
     });
+
+
 }
