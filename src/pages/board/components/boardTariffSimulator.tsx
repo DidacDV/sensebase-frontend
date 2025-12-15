@@ -1,8 +1,44 @@
 import {useState, useEffect, useMemo} from 'react';
 import { motion } from 'framer-motion';
-import {useBoardTariffBlueprints} from "@src/services/tariffService.ts";
-import type {TariffBlueprint} from "@src/types/tariffModel.ts";
+import {
+    useBoardTariffBlueprints,
+    useCreateTariffBlueprint,
+    useExtractTariffFromPDF
+} from "@src/services/tariffService.ts";
+import type {CreateTariffBlueprintPayload, TariffBlueprint} from "@src/types/tariffModel.ts";
 import ReactECharts from "echarts-for-react";
+import {Save} from 'lucide-react';
+import BlueprintModal from "@src/components/modals/blueprintModal.tsx";
+
+const INITIAL_FORM_DATA = {
+    contracted_power_p1: '',
+    contracted_power_p2: '',
+    contracted_power_p3: '',
+    contracted_power_p4: '',
+    contracted_power_p5: '',
+    contracted_power_p6: '',
+    peaje_power_p1: '',
+    peaje_power_p2: '',
+    peaje_power_p3: '',
+    peaje_power_p4: '',
+    peaje_power_p5: '',
+    peaje_power_p6: '',
+    cargo_power_p1: '',
+    cargo_power_p2: '',
+    cargo_power_p3: '',
+    cargo_power_p4: '',
+    cargo_power_p5: '',
+    cargo_power_p6: '',
+    peaje_energy_p1: '',
+    peaje_energy_p2: '',
+    peaje_energy_p6: '',
+    cargo_energy_p1: '',
+    cargo_energy_p2: '',
+    cargo_energy_p6: '',
+    electricity_tax_percentage: '5.11269632',
+    social_bonus_financing_daily: '0.006282',
+    meter_rental_daily: '2.098361',
+};
 
 interface TariffSimulatorProps {
     boardId: string;
@@ -15,38 +51,19 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
     const [timePeriod, setTimePeriod] = useState<'day' | 'week' | 'month'>('day');
     // Fetch tariff blueprints
     const { data: blueprints, isLoading, error } = useBoardTariffBlueprints(boardId);
+    const extractFromPDF = useExtractTariffFromPDF();
+    const createBlueprint = useCreateTariffBlueprint();
     const [selectedBlueprint, setSelectedBlueprint] = useState<TariffBlueprint | null>(null);
 
     // Form state for all fields
-    const [formData, setFormData] = useState({
-        contracted_power_p1: '',
-        contracted_power_p2: '',
-        contracted_power_p3: '',
-        contracted_power_p4: '',
-        contracted_power_p5: '',
-        contracted_power_p6: '',
-        peaje_power_p1: '',
-        peaje_power_p2: '',
-        peaje_power_p3: '',
-        peaje_power_p4: '',
-        peaje_power_p5: '',
-        peaje_power_p6: '',
-        cargo_power_p1: '',
-        cargo_power_p2: '',
-        cargo_power_p3: '',
-        cargo_power_p4: '',
-        cargo_power_p5: '',
-        cargo_power_p6: '',
-        peaje_energy_p1: '',
-        peaje_energy_p2: '',
-        peaje_energy_p6: '',
-        cargo_energy_p1: '',
-        cargo_energy_p2: '',
-        cargo_energy_p6: '',
-        electricity_tax_percentage: '5.11269632',
-        social_bonus_financing_daily: '0.006282',
-        meter_rental_daily: '2.098361',
-    });
+    const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+
+    // Modal
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+    const [modalBlueprintName, setModalBlueprintName] = useState('New Custom Blueprint');
+    const [modalBlueprintDescription, setModalBlueprintDescription] = useState('Saved from Tariff Simulator');
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [saveMessage, setSaveMessage] = useState('');
 
     // Populate form when blueprint is selected
     useEffect(() => {
@@ -88,40 +105,67 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
 
         if (!blueprintId || isNaN(blueprintId)) {
             setSelectedBlueprint(null);
-            setFormData({
-                contracted_power_p1: '',
-                contracted_power_p2: '',
-                contracted_power_p3: '',
-                contracted_power_p4: '',
-                contracted_power_p5: '',
-                contracted_power_p6: '',
-                peaje_power_p1: '',
-                peaje_power_p2: '',
-                peaje_power_p3: '',
-                peaje_power_p4: '',
-                peaje_power_p5: '',
-                peaje_power_p6: '',
-                cargo_power_p1: '',
-                cargo_power_p2: '',
-                cargo_power_p3: '',
-                cargo_power_p4: '',
-                cargo_power_p5: '',
-                cargo_power_p6: '',
-                peaje_energy_p1: '',
-                peaje_energy_p2: '',
-                peaje_energy_p6: '',
-                cargo_energy_p1: '',
-                cargo_energy_p2: '',
-                cargo_energy_p6: '',
-                electricity_tax_percentage: '5.11269632',
-                social_bonus_financing_daily: '0.006282',
-                meter_rental_daily: '2.098361',
-            });
+            setFormData(INITIAL_FORM_DATA);
             return;
         }
 
         const blueprint = blueprints?.find(b => b.id === blueprintId);
         setSelectedBlueprint(blueprint || null);
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith('.pdf')) return;
+
+        try {
+            const extractedData = await extractFromPDF.mutateAsync(file);
+            setFormData({
+                ...INITIAL_FORM_DATA,
+                ...extractedData,
+            });
+            setSelectedBlueprint(null);
+            e.target.value = '';
+        } catch (error) {
+            console.error('Failed to extract tariff from PDF:', error);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsSaveModalOpen(false);
+        setSaveStatus('idle'); // Reset status when closing
+        setModalBlueprintName('New Custom Blueprint');
+        setModalBlueprintDescription('Saved from Tariff Simulator');
+    };
+
+
+    const handleConfirmSaveBlueprint = () => {
+        if (!modalBlueprintName.trim()) {
+            return; // Remove the alert
+        }
+        if (!formData.contracted_power_p1) return;
+
+        const boardIdNumber = Number(boardId);
+
+        const payload: CreateTariffBlueprintPayload = {
+            ...formData,
+            board_id: boardIdNumber,
+            name: modalBlueprintName.trim(),
+            description: modalBlueprintDescription.trim(),
+        };
+
+        createBlueprint.mutate(payload, {
+            onSuccess: (newBlueprint) => {
+                setSaveStatus('success');
+                setSaveMessage(`Blueprint "${newBlueprint.name}" saved successfully!`); // FIX: Add parentheses
+                setSelectedBlueprint(newBlueprint);
+            },
+            onError: (error: any) => {
+                setSaveStatus('error');
+                setSaveMessage(`Failed to save blueprint. Error: ${error.message || 'Unknown network error.'}`); // FIX: Add parentheses
+                console.error('Save Blueprint Failed:', error);
+            }
+        });
     };
 
     const calculateCosts = useMemo(() => {
@@ -189,12 +233,34 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
         };
     }, [formData, timePeriod]);
 
-    const chartOption = useMemo(() => {
+    // Renamed the original chartOption to barChartOption for clarity
+    const barChartOption = useMemo(() => {
         if (!calculateCosts) return null;
+
+        const periodData = [
+            { name: 'P1', peaje: calculateCosts.fixedCosts[0].peaje, cargo: calculateCosts.fixedCosts[0].cargo },
+            { name: 'P2', peaje: calculateCosts.fixedCosts[1].peaje, cargo: calculateCosts.fixedCosts[1].cargo },
+            { name: 'P3', peaje: calculateCosts.fixedCosts[2].peaje, cargo: calculateCosts.fixedCosts[2].cargo },
+            { name: 'P4', peaje: calculateCosts.fixedCosts[3].peaje, cargo: calculateCosts.fixedCosts[3].cargo },
+            { name: 'P5', peaje: calculateCosts.fixedCosts[4].peaje, cargo: calculateCosts.fixedCosts[4].cargo },
+            { name: 'P6', peaje: calculateCosts.fixedCosts[5].peaje, cargo: calculateCosts.fixedCosts[5].cargo },
+        ];
+
+        // Filter data: Keep only periods where Peaje OR Cargo cost is greater than 0.001
+        const filteredData = periodData.filter(p => p.peaje > 0.001 || p.cargo > 0.001);
+
+        // If no fixed power costs are found, return null to trigger the Pie Chart failover
+        if (filteredData.length === 0) {
+            return null;
+        }
+
+        const categories = filteredData.map(p => p.name);
+        const peajesData = filteredData.map(p => parseFloat(p.peaje.toFixed(2)));
+        const cargosData = filteredData.map(p => parseFloat(p.cargo.toFixed(2)));
 
         return {
             title: {
-                text: `Tariff Cost Breakdown - ${timePeriod === 'day' ? 'Daily' : timePeriod === 'week' ? 'Weekly' : 'Monthly'}`,
+                text: `Fixed Power Cost Breakdown - ${timePeriod === 'day' ? 'Daily' : timePeriod === 'week' ? 'Weekly' : 'Monthly'}`,
                 left: 'center',
                 textStyle: {
                     color: '#1A3D63',
@@ -206,15 +272,15 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 formatter: (params: any) => {
-                    let tooltip = `<div style="font-weight: bold; margin-bottom: 8px;">${params[0].axisValue}</div>`;
+                    let tooltip = `<div style="font-weight: bold; margin-bottom: 8px;">Period ${params[0].axisValue}</div>`;
                     params.forEach((param: any) => {
                         tooltip += `
-                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px; border-radius: 50%;"></span>
-                            <span>${param.seriesName}: </span>
-                            <span style="font-weight: bold; margin-left: 8px;">${param.value.toFixed(2)} €</span>
-                        </div>
-                    `;
+                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px; border-radius: 50%;"></span>
+                        <span>${param.seriesName}: </span>
+                        <span style="font-weight: bold; margin-left: 8px;">${param.value.toFixed(2)} €</span>
+                    </div>
+                `;
                     });
                     return tooltip;
                 }
@@ -233,7 +299,7 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
             },
             xAxis: {
                 type: 'category',
-                data: ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'],
+                data: categories,
                 axisLabel: { color: '#6B7280' },
                 axisLine: { lineStyle: { color: '#D1D5DB' } }
             },
@@ -253,15 +319,109 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
                     name: 'Peajes',
                     type: 'bar',
                     stack: 'total',
-                    data: calculateCosts.fixedCosts.map(c => c.peaje.toFixed(2)),
-                    itemStyle: { color: '#3B82F6' }
+                    barWidth: '60%',
+                    data: peajesData,
+                    itemStyle: {
+                        color: '#3B82F6',
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }
                 },
                 {
                     name: 'Cargos',
                     type: 'bar',
                     stack: 'total',
-                    data: calculateCosts.fixedCosts.map(c => c.cargo.toFixed(2)),
-                    itemStyle: { color: '#8B5CF6' }
+                    data: cargosData,
+                    itemStyle: {
+                        color: '#8B5CF6',
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }
+                }
+            ]
+        };
+    }, [calculateCosts, timePeriod]);
+
+    const pieChartOption = useMemo(() => {
+        if (!calculateCosts) return null;
+
+        const totalFixedPower = calculateCosts.totalFixedPeajes + calculateCosts.totalFixedCargos;
+        const totalTax = calculateCosts.electricityTax;
+
+        const pieData = [];
+
+        // Only include components that have a non-negligible cost (using 0.001 as a tolerance)
+        if (totalFixedPower > 0.001) {
+            pieData.push({ name: 'Fixed Power (Peajes + Cargos)', value: parseFloat(totalFixedPower.toFixed(2)) });
+        }
+        if (calculateCosts.otherCosts.meterRental > 0.001) {
+            pieData.push({ name: 'Meter Rental', value: parseFloat(calculateCosts.otherCosts.meterRental.toFixed(2)) });
+        }
+        if (calculateCosts.otherCosts.socialBonus > 0.001) {
+            pieData.push({ name: 'Social Bonus Financing', value: parseFloat(calculateCosts.otherCosts.socialBonus.toFixed(2)) });
+        }
+        // Tax is calculated on the subtotal, so it should be included if the subtotal is non-zero
+        if (totalTax > 0.001) {
+            pieData.push({ name: 'Electricity Tax', value: parseFloat(totalTax.toFixed(2)) });
+        }
+
+        if (pieData.length === 0) {
+            return null;
+        }
+
+        return {
+            title: {
+                text: `Total Fixed Cost Breakdown - ${timePeriod === 'day' ? 'Daily' : timePeriod === 'week' ? 'Weekly' : 'Monthly'}`,
+                subtext: `Total: ${calculateCosts.total.toFixed(2)} €`,
+                left: 'center',
+                textStyle: {
+                    color: '#1A3D63',
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                },
+                subtextStyle: {
+                    color: '#374151',
+                    fontSize: 14
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c} € ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 'middle',
+                bottom: '20',
+                data: pieData.map(d => d.name)
+            },
+            series: [
+                {
+                    name: 'Cost Breakdown',
+                    type: 'pie',
+                    radius: '50%',
+                    center: ['65%', '55%'],
+                    data: pieData,
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        formatter: '{b}: {c} €',
+                        color: '#1A3D63'
+                    },
+                    labelLine: {
+                        length: 10
+                    },
+                    itemStyle: {
+                        borderRadius: 5,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    color: ['#4C51BF', '#3B82F6', '#10B981', '#F59E0B']
                 }
             ]
         };
@@ -329,15 +489,68 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
                     </div>
 
                     {/* File Upload */}
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Auto complete with your bill
+                    <div className="mb-6">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                            Fill with PDF Bill
                         </label>
-                        <input
-                            type="file"
-                            accept=".pdf,.docx"
-                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                        />
+
+                        <div
+                            className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                extractFromPDF.isPending
+                                    ? 'bg-blue-50 border-blue-400'
+                                    : 'bg-white border-gray-300 hover:bg-gray-50'
+                            } disabled:cursor-not-allowed`}
+                        >
+                            <input
+                                id="pdf-upload"
+                                type="file"
+                                accept=".pdf"
+                                onChange={handleFileUpload}
+                                disabled={extractFromPDF.isPending}
+                                className="hidden"
+                            />
+
+                            {extractFromPDF.isPending ? (
+                                <div className="text-center">
+                                    <span className="inline-block animate-spin text-blue-600 text-3xl">⏳</span>
+                                    <p className="text-sm text-blue-600 mt-2 font-medium">
+                                        Extracting data... Please wait.
+                                    </p>
+                                </div>
+                            ) : (
+                                <label
+                                    htmlFor="pdf-upload"
+                                    className="flex flex-col items-center justify-center w-full h-full cursor-pointer p-4"
+                                >
+                                    <svg
+                                        className="w-8 h-8 text-blue-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 014 4v2a2 2 0 01-2 2h-4M15 19l-3-3m0 0l-3 3m3-3v8"></path>
+                                    </svg>
+                                    <p className="text-sm text-gray-600 mt-2">
+                                        <span className="font-medium text-blue-600 hover:text-blue-500">
+                                            Click to upload
+                                        </span> or drag and drop
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        PDF file only (e.g., utility bill, invoice)
+                                    </p>
+                                </label>
+                            )}
+                        </div>
+
+                        {extractFromPDF.isError && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 p-2 mt-2 rounded-md flex items-center gap-2">
+                                <span className="text-lg">❌</span>
+                                <p className="text-sm font-medium">
+                                    Extraction Failed: Please ensure the document is a readable bill/invoice PDF.
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Tariff Type */}
@@ -558,11 +771,16 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
 
                 {/* Action Buttons */}
                 <div className="mt-auto flex gap-2">
-                    <button className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
-                        SAVE
-                    </button>
-                    <button className="flex-1 px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-800 transition-colors">
-                        TEST
+                    <button
+                        onClick={() => {
+                            setIsSaveModalOpen(true);
+                            setSaveStatus('idle');
+                        }}
+                        disabled={!formData.contracted_power_p1}
+                        className="flex-1 px-4 py-2 bg-yellow-500 text-gray-900 rounded-md font-semibold hover:bg-yellow-600 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                        <Save size={18} />
+                        Save Blueprint
                     </button>
                 </div>
             </motion.div>
@@ -572,7 +790,6 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
                 variants={itemVariants as any}
                 className="flex-1 space-y-6"
             >
-                {/* Chart Section */}
                 {/* Chart Section */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex justify-between items-center mb-4">
@@ -599,15 +816,28 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
                         </div>
                     </div>
 
-                    {chartOption && calculateCosts ? (
+                    {/* Dynamic Visualization Logic: Render Bar Chart OR Pie Chart */}
+                    {(barChartOption || pieChartOption) && calculateCosts ? (
                         <>
-                            <ReactECharts
-                                option={chartOption}
-                                style={{ height: '300px', width: '100%' }}
-                                opts={{ renderer: 'canvas' }}
-                            />
+                            {/* 1. Bar Chart: Renders only if there are non-zero Fixed Power Costs */}
+                            {barChartOption && (
+                                <ReactECharts
+                                    option={barChartOption}
+                                    style={{ height: '300px', width: '100%' }}
+                                    opts={{ renderer: 'canvas' }}
+                                />
+                            )}
 
-                            {/* Cost Summary */}
+                            {/* 2. Pie Chart: Renders if the Bar Chart is empty OR if only Fixed Power Costs are zero */}
+                            {!barChartOption && pieChartOption && (
+                                <ReactECharts
+                                    option={pieChartOption}
+                                    style={{ height: '300px', width: '100%' }}
+                                    opts={{ renderer: 'canvas' }}
+                                />
+                            )}
+
+                            {/* Cost Summary (remains the same) */}
                             <div className="mt-6 grid grid-cols-2 gap-4 pt-4 border-t">
                                 <div>
                                     <p className="text-sm text-gray-600">Total Peajes</p>
@@ -642,19 +872,27 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h3 className="text-lg font-semibold mb-4">Future events</h3>
 
-                    {/* Placeholder for timeline */}
                     <div className="h-24 bg-gray-50 rounded flex items-center justify-center text-gray-500">
                         Timeline will go here
                     </div>
                 </div>
 
-                {/* View Full Insights Button */}
-                <div className="flex justify-center">
-                    <button className="px-8 py-3 bg-blue-900 text-white rounded-full hover:bg-blue-800 transition-colors">
-                        View full insights
-                    </button>
-                </div>
             </motion.div>
+
+            {isSaveModalOpen && (
+                <BlueprintModal
+                    isOpen={isSaveModalOpen}
+                    onClose={handleCloseModal}
+                    onConfirm={handleConfirmSaveBlueprint}
+                    blueprintName={modalBlueprintName}
+                    setBlueprintName={setModalBlueprintName}
+                    blueprintDescription={modalBlueprintDescription}
+                    setBlueprintDescription={setModalBlueprintDescription}
+                    saveStatus={saveStatus}
+                    saveMessage={saveMessage}
+                    isPending={createBlueprint.isPending}
+                />
+            )}
         </motion.div>
     );
 };
