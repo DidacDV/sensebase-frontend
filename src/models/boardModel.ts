@@ -1,27 +1,34 @@
 import { type ChartStructure } from "@src/models/chartModels";
 
-export interface Insights {
-  insight1: string;
-  insight2: string;
-  insight3: string;
+export type Sentiment = 'positive' | 'negative' | 'neutral';
+export type InsightType = 'alert' | 'tip' | 'stat';
+
+export interface MainSummary {
+  title: string;
+  content: string;
+  sentiment: Sentiment;
+}
+
+export interface Insight {
+  title: string;
+  briefDescription: string;
+  type: InsightType;
 }
 
 export interface Keypoint {
-    title: string;
-    description: string;
+  label: string;
+  text: string;
 }
 
-export interface Keypoints {
-    keypoint1: Keypoint;
-    keypoint2: Keypoint;
-    keypoint3: Keypoint;
+export interface DeepDive {
+  description: string;
+  keyPoints: Keypoint[];
 }
 
 export interface BoardContext {
   chart1: ChartStructure;
   chart2: ChartStructure;
-  mainContextDescription: string;
-  secondaryContextDescription: string;
-  insights: Insights;
-  keypoints: Keypoints;
+  mainSummary: MainSummary;
+  insights: Insight[];
+  deepDive: DeepDive;
 }

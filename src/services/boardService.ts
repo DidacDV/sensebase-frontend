@@ -9,6 +9,12 @@ import type {
 import authenticationService from "@src/services/authentication.ts";
 import type {BoardContext} from "@src/models/boardModel.ts";
 
+export const fetchBoardContext = async (id: string, payload: any): Promise<BoardContext> => {
+    const { data } = await authenticationService.post(`/boards/${id}/context/`, payload);
+    return data;
+};
+
+
 const boardApi = {
     getAll: async (): Promise<Board[]> => {
         const { data } = await authenticationService.get('/boards/');
@@ -73,19 +79,26 @@ export function useBoard(id: string) {
     });
 }
 
+export function useBoardContext() {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: any }) => 
+            fetchBoardContext(id, data),
+        onSuccess: (responseData, variables) => {
+            const cacheKey = ['board-context', variables.id, JSON.stringify(variables.data)];
+            
+            queryClient.setQueryData(cacheKey, responseData);
+        },
+    });
+}
+
 export function useBoardDataSources(boardId: string) {
     return useQuery<DataSourcesResponse>({
         queryKey: boardKeys.dataSources(boardId),
         queryFn: () => boardApi.getDataSources(boardId),
         enabled: !!boardId,
     });
-}
-
-export function useBoardContext() {
-    return useMutation({
-        mutationFn: (payload: { id: string; data: any }) =>
-            boardApi.getContext(payload.id, payload.data),
-    })
 }
 
 export function useCreateBoard() {
