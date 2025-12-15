@@ -70,24 +70,24 @@ const BoardPage = () => {
         setAllDataSources(sources);
     }, []);
 
-const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-useEffect(() => {
-    if (id && currentSelectedIds && currentSelectedIds?.size > 0 && allDataSources) {
-        const payload = createDynamicPayload(currentSelectedIds, allDataSources);
+    useEffect(() => {
+        if (id && currentSelectedIds && currentSelectedIds?.size > 0 && allDataSources) {
+            const payload = createDynamicPayload(currentSelectedIds, allDataSources);
 
-        if (payload.data_sources.length > 0) {
-            //check cache first
-            const cacheKey = ['board-context', id, JSON.stringify(payload)];
-            const cachedData = queryClient.getQueryData(cacheKey);
+            if (payload.data_sources.length > 0) {
+                //check cache first
+                const cacheKey = ['board-context', id, JSON.stringify(payload)];
+                const cachedData = queryClient.getQueryData(cacheKey);
 
-            if (!cachedData) {
-                //only fetch if not in cache
-                getContext({ id: id, data: payload });
+                if (!cachedData) {
+                    //only fetch if not in cache
+                    getContext({ id: id, data: payload });
+                }
             }
         }
-    }
-}, [activeTab, allDataSources, currentSelectedIds, getContext, id, queryClient]);
+    }, [activeTab, allDataSources, currentSelectedIds, getContext, id, queryClient]);
 
     return (
         <div className="flex flex-row bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4" style={{ height: 'calc(100vh - 72px)' }}>
@@ -105,7 +105,7 @@ useEffect(() => {
                     )}
 
                     {activeTab === "Tariff simulator" && (
-                        <TariffSimulator />
+                        <TariffSimulator boardId={id ?? "0"}/>
                     )}
                     {activeTab === "Cost optimization" && (
                         <CostOptimization />
