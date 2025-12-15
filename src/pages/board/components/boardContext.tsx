@@ -8,6 +8,15 @@ interface BoardContextProps {
   context: BoardContextModel;
 }
 
+/** Board color system – aligned with charts */
+const BOARD_COLORS = {
+  grid: '#1D4ED8',   // Grid – royal blue
+  local: '#6D28D9',  // Local – indigo
+  all: '#06B6D4',    // All / Total – cyan
+  mixed: '#4F46E5',  // Mixed – blue-indigo
+  it: '#0F3DCC',     // IT – deep tech blue
+};
+
 const Context = ({ context }: BoardContextProps) => {
   // helpers
   const getInsightType = (type: string): InfoCardType => {
@@ -22,15 +31,33 @@ const Context = ({ context }: BoardContextProps) => {
   const getSentimentBadge = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
-        return <span className="bg-[#5BA89D]/10 text-[#5BA89D] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Positive Outlook</span>;
+        return (
+          <span
+            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+            style={{ backgroundColor: `${BOARD_COLORS.all}1A`, color: BOARD_COLORS.all }}
+          >
+            Positive Outlook
+          </span>
+        );
       case 'negative':
-        return <span className="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Attention Required</span>;
+        return (
+          <span className="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+            Attention Required
+          </span>
+        );
       default:
-        return <span className="bg-[#4A7FA7]/10 text-[#4A7FA7] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Neutral Analysis</span>;
+        return (
+          <span
+            className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+            style={{ backgroundColor: `${BOARD_COLORS.mixed}1A`, color: BOARD_COLORS.mixed }}
+          >
+            Neutral Analysis
+          </span>
+        );
     }
   };
 
-  //animations 
+  // animations
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -41,15 +68,16 @@ const Context = ({ context }: BoardContextProps) => {
 
   const bentoItemVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.98 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       scale: 1,
-      transition: { duration: 0.5, ease: "easeOut" } 
+      transition: { duration: 0.5, ease: 'easeOut' }
     }
   };
 
-  const bentoCardClass = "bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-full flex flex-col";
+  const bentoCardClass =
+    'bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-full flex flex-col';
 
   return (
     <motion.div
@@ -58,41 +86,70 @@ const Context = ({ context }: BoardContextProps) => {
       animate="visible"
       className="w-full pb-12"
     >
-      {/* BENTO GRID CONTAINER */}
+      {/* BENTO GRID */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-auto">
 
-        <motion.div variants={bentoItemVariants as any} className="md:col-span-12 relative overflow-hidden bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#5BA89D]/10 to-transparent rounded-bl-full pointer-events-none" />
+        {/* SUMMARY */}
+        <motion.div
+          variants={bentoItemVariants as any}
+          className="md:col-span-12 relative overflow-hidden bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
+        >
+          <div
+            className="absolute top-0 right-0 w-64 h-64 rounded-bl-full pointer-events-none"
+            style={{
+              background: `linear-gradient(135deg, ${BOARD_COLORS.all}22, transparent)`
+            }}
+          />
           <div className="relative z-10">
             <div className="mb-4">{getSentimentBadge(context.mainSummary.sentiment)}</div>
-            <h2 className="text-3xl font-bold text-[#1A3D63] mb-3">{context.mainSummary.title}</h2>
-            <p className="text-gray-600 text-lg max-w-5xl">{context.mainSummary.content}</p>
+            <h2 className="text-3xl font-bold mb-3" style={{ color: BOARD_COLORS.mixed }}>
+              {context.mainSummary.title}
+            </h2>
+            <p className="text-gray-600 text-lg max-w-5xl">
+              {context.mainSummary.content}
+            </p>
           </div>
         </motion.div>
 
-        {/* Spans 8 columns */}
-        <motion.div variants={bentoItemVariants as any} className={`md:col-span-12 lg:col-span-8 ${bentoCardClass}`}>
+        {/* PRIMARY PERFORMANCE */}
+        <motion.div
+          variants={bentoItemVariants as any}
+          className={`md:col-span-12 lg:col-span-8 ${bentoCardClass}`}
+        >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-bold text-[#1A3D63] flex items-center gap-2">
-              <span className="w-2 h-6 bg-[#1A3D63] rounded-full"></span>
+              <span
+                className="w-2 h-6 rounded-full"
+                style={{ backgroundColor: BOARD_COLORS.grid }}
+              />
               Primary Performance
             </h3>
           </div>
           <div className="flex-grow min-h-[350px]">
             {context.chart1?.data ? (
-              <ChartRenderer data={context.chart1} granularity="hourly" height="350px" />
+              <ChartRenderer
+                data={context.chart1}
+                granularity="hourly"
+                height="350px"
+              />
             ) : (
               <EmptyState icon="📊" />
             )}
           </div>
         </motion.div>
 
-        <motion.div variants={bentoItemVariants as any} className={`md:col-span-12 lg:col-span-4 ${bentoCardClass} bg-gray-50/50`}>
+        {/* KEY INSIGHTS */}
+        <motion.div
+          variants={bentoItemVariants as any}
+          className={`md:col-span-12 lg:col-span-4 ${bentoCardClass} bg-gray-50/50 flex`}
+        >
           <h3 className="text-lg font-bold text-[#1A3D63] mb-4 flex items-center gap-2">
-            <span className="w-2 h-6 bg-[#4A7FA7] rounded-full"></span>
+            <span
+              className="w-2 h-6 rounded-full"
+            />
             Key Insights
           </h3>
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+          <div className="flex flex-col gap-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar mx-auto">
             {context.insights?.map((insight, i) => (
               <InfoCard
                 key={i}
@@ -102,50 +159,74 @@ const Context = ({ context }: BoardContextProps) => {
               />
             ))}
             {(!context.insights || context.insights.length === 0) && (
-               <p className="text-gray-400 text-center py-10">No specific insights available.</p>
+              <p className="text-gray-400 text-center py-10">
+                No specific insights available.
+              </p>
             )}
           </div>
         </motion.div>
 
-        {/* Spans 6 columns */}
-        <motion.div variants={bentoItemVariants as any} className={`md:col-span-12 lg:col-span-6 ${bentoCardClass}`}>
-          <h3 className="text-xl font-bold text-[#1A3D63] mb-6 flex items-center gap-2">
-            <span className="w-2 h-6 bg-[#5BA89D] rounded-full"></span>
+        {/* SECONDARY TRENDS */}
+        <motion.div
+          variants={bentoItemVariants as any}
+          className={`md:col-span-12 lg:col-span-6 ${bentoCardClass}`}
+        >
+          <h3 className="text-xl font-bold text-[#1A3D63] mb-2 flex items-center gap-2">
+            <span
+              className="w-2 h-6 rounded-full"
+              style={{ backgroundColor: BOARD_COLORS.local }}
+            />
             Secondary Trends
           </h3>
-          <div className="flex-grow min-h-[500px]">
+          <div className="flex-grow min-h-[350px]">
             {context.chart2?.data ? (
-              <ChartRenderer data={context.chart2} granularity="hourly" height="300px" />
+              <ChartRenderer
+                data={context.chart2}
+                granularity="hourly"
+                height="350px"
+              />
             ) : (
               <EmptyState icon="📈" />
             )}
           </div>
         </motion.div>
 
+        {/* DEEP DIVE */}
         {context.deepDive && (
-          <motion.div variants={bentoItemVariants as any} className="md:col-span-12 lg:col-span-6 flex flex-col gap-4">
-             {/* Description Card */}
-            <div className="bg-[#1A3D63] rounded-3xl p-8 text-white shadow-sm flex-grow">
-              <h3 className="text-xl font-bold mb-4 opacity-90">Deep Dive Analysis</h3>
-              <p className="text-blue-100 leading-relaxed opacity-90 text-sm md:text-base">
+          <motion.div
+            variants={bentoItemVariants as any}
+            className="md:col-span-12 lg:col-span-6 flex flex-col gap-4"
+          >
+            <div
+              className="rounded-3xl p-8 text-white shadow-sm flex-grow"
+              style={{ backgroundColor: BOARD_COLORS.it }}
+            >
+              <h3 className="text-xl font-bold mb-4">
+                Deep Dive Analysis
+              </h3>
+              <p className="text-white leading-relaxed text-sm md:text-base">
                 {context.deepDive.description}
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {context.deepDive.keyPoints?.slice(0, 4).map((kp, i) => (
-                 <KeypointCard key={i} index={i} title={kp.label} description={kp.text} />
+                <KeypointCard
+                  key={i}
+                  index={i}
+                  title={kp.label}
+                  description={kp.text}
+                />
               ))}
             </div>
           </motion.div>
         )}
-
       </div>
     </motion.div>
   );
 };
 
-// Simple helper for empty charts
+// Empty chart helper
 const EmptyState = ({ icon }: { icon: string }) => (
   <div className="h-full w-full flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-dashed border-gray-300 text-gray-400 min-h-[250px]">
     <span className="text-4xl mb-2 opacity-50">{icon}</span>

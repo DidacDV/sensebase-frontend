@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { RoseChartData } from '@src/models/chartModels';
-import { PanelBottom } from 'lucide-react';
 
 interface RoseChartTimelineProps {
   data: RoseChartData;
@@ -26,11 +25,10 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
         timeline: {
           axisType: 'category',
           autoPlay: true,
-          playInterval: 2000,
+          playInterval: 6000,
           data: data.timeline,
           left: '5%',
           right: '5%',
-          bottom: 10,
           lineStyle: { color: '#ccc' },
           label: { color: '#666' },
           itemStyle: { color: '#999' },
@@ -41,7 +39,7 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
           text: `Energy Mix - ${data.granularity.charAt(0).toUpperCase() + data.granularity.slice(1)}`,
           top: 10,
           left: 'center',
-          textStyle: { color: '#1A3D63', fontSize: 18, fontWeight: 'bold'}
+          textStyle: { color: '#1A3D63', fontSize: 14, fontWeight: 'bold'}
         },
         tooltip: {
           trigger: 'item',
@@ -54,7 +52,7 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
         legend: {
             top: -20,
             type: 'scroll',
-            textStyle: { color: '#374151' }
+            textStyle: { color: '#0F3DCC' }
         },
         calculable: true,
         series: [
@@ -73,13 +71,13 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
               show: true,
               formatter: '{b}'
             },
-            color: [
-               '#FFD700', // Grid
-               '#9333EA', // Local
-               '#00CED1', // All/Total
-               '#FF0087', // Mixed
-               '#37A2FF', // IT
-            ]
+              color: [
+                '#1D4ED8', // Grid
+                '#6D28D9', // Local
+                '#06B6D4', // All/Total
+                '#4F46E5', // Mixed
+                '#0F3DCC', // IT
+              ]
           }
         ]
       },
