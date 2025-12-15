@@ -17,21 +17,21 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
 
   //should be pivcked from the board config
   const colorPalette: Record<string, [string, string]> = {
-    'ALL-No usage': ['#80FFA5', '#01BFEC'],
-    'ALL-Total': ['#00CED1', '#0099CC'],
-    'ALL-Lighting': ['#00DDFF', '#4D77FF'],
-    'ALL-IT': ['#37A2FF', '#1E40AF'],
-    'ALL-Mixed usages': ['#FF0087', '#C2185B'],
-    
-    'GRID-Total': ['#FFD700', '#FFA500'],
-    'GRID-Lighting': ['#FFBF00', '#FF8C00'],
-    'GRID-IT': ['#FFA500', '#FF6F00'],
-    'GRID-Mixed usages': ['#FF7F50', '#FF4500'],
-    
-    'LOCAL-Total': ['#9333EA', '#7E22CE'],
-    'LOCAL-Lighting': ['#7C3AED', '#6D28D9'],
-    'LOCAL-IT': ['#8B5CF6', '#7C3AED'],
-    'LOCAL-Mixed usages': ['#A78BFA', '#8B5CF6'],
+    'ALL-No usage': ['#E0F2FE', '#7DD3FC'],        // very light sky
+    'ALL-Total': ['#06B6D4', '#0891B2'],           // cyan
+    'ALL-Lighting': ['#3B82F6', '#2563EB'],        // true blue
+    'ALL-IT': ['#6366F1', '#4F46E5'],              // indigo
+    'ALL-Mixed usages': ['#14B8A6', '#0F766E'],    // teal
+
+    'GRID-Total': ['#1D4ED8', '#1E40AF'],          // royal blue
+    'GRID-Lighting': ['#60A5FA', '#3B82F6'],       // light blue
+    'GRID-IT': ['#0B2F8A', '#082567'],              // navy
+    'GRID-Mixed usages': ['#38BDF8', '#0284C7'],   // sky blue
+
+    'LOCAL-Total': ['#6D28D9', '#5B21B6'],         // indigo
+    'LOCAL-Lighting': ['#8B5CF6', '#7C3AED'],      // violet-blue
+    'LOCAL-IT': ['#2563EB', '#1D4ED8'],             // blue
+    'LOCAL-Mixed usages': ['#A5B4FC', '#818CF8'],  // periwinkle
   };
 
   const getGradientColor = (category: string, usageType: string): [string, string] => {

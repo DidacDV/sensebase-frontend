@@ -20,9 +20,30 @@ export interface TimeSeries {
   data: number[];
 }
 
+export interface RoseChartStructure {
+  type: "rose";
+  hourly: RoseChartData;
+  daily: RoseChartData;
+  monthly: RoseChartData;
+}
+
+export interface RoseChartData {
+  timeline: string[];
+  options: RoseSeriesItem[][]; 
+  unit: string;
+  granularity: string;
+}
+
+export interface RoseSeriesItem {
+  name: string;
+  value: number;
+  category?: string;
+  usageType?: string;
+}
+
 export interface ChartStructure {
   type: string;
-  data: TimeSeriesChartStructure | BarChartData;
+  data: TimeSeriesChartStructure | BarChartData | RoseChartStructure;
 }
 
 //this is just to simulate the chartstructure type for now

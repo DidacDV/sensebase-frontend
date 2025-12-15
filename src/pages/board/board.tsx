@@ -9,6 +9,7 @@ import type {SidebarNode} from "@src/types/sidebar.ts";
 import type {DataSourcesResponse} from "@src/types/boardModel.ts";
 import TariffSimulator from "@src/pages/board/components/boardTariffSimulator.tsx";
 import CostOptimization from "@src/pages/board/components/boardCostOptimization.tsx";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 
@@ -69,15 +70,24 @@ const BoardPage = () => {
         setAllDataSources(sources);
     }, []);
 
-    useEffect(() => {
-        if (id && currentSelectedIds && currentSelectedIds?.size > 0 && allDataSources) {
-            const payload = createDynamicPayload(currentSelectedIds, allDataSources);
+const queryClient = useQueryClient();
 
-            if (payload.data_sources.length > 0) {
+useEffect(() => {
+    if (id && currentSelectedIds && currentSelectedIds?.size > 0 && allDataSources) {
+        const payload = createDynamicPayload(currentSelectedIds, allDataSources);
+
+        if (payload.data_sources.length > 0) {
+            //check cache first
+            const cacheKey = ['board-context', id, JSON.stringify(payload)];
+            const cachedData = queryClient.getQueryData(cacheKey);
+
+            if (!cachedData) {
+                //only fetch if not in cache
                 getContext({ id: id, data: payload });
             }
         }
-    }, [activeTab, allDataSources, currentSelectedIds, getContext, id]);
+    }
+}, [activeTab, allDataSources, currentSelectedIds, getContext, id, queryClient]);
 
     return (
         <div className="flex flex-row bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4" style={{ height: 'calc(100vh - 72px)' }}>

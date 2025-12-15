@@ -1,69 +1,90 @@
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
+
+export type InfoCardType = 'alert' | 'tip' | 'stat' | 'neutral';
 
 export interface InfoCardProps {
-  color: 'blueLight' | 'blueSky' | 'blueOcean' | 'blueRoyal' | 'blueMid' | 'blueDeep';
+  type: InfoCardType;
+  title: string;
   description: string;
   icon?: React.ReactNode;
 }
 
-// TODO USE PALETTE PASSED BY PROPS
-const InfoCard = ({ color, description, icon }: InfoCardProps) => {
-  const colorClasses = {
-    blueLight: {
-      bg: 'bg-gradient-to-br from-blue-50 to-blue-100',
-      border: 'border-blue-200',
-      shadow: 'hover:shadow-blue-200/50',
-      iconBg: 'bg-blue-300'
+/** Board-aligned colors */
+const BOARD_COLORS = {
+  grid: '#1D4ED8',  
+  local: '#6D28D9', 
+  all: '#06B6D4',  
+  mixed: '#4F46E5',  
+  it: '#0F3DCC',     
+};
+
+const InfoCard = ({ type, title, description, icon }: InfoCardProps) => {
+  const styles = {
+    alert: {
+      borderWidth: 6,
+      borderColor: BOARD_COLORS.it,
+      iconBg: `${BOARD_COLORS.it}1A`,
+      iconColor: BOARD_COLORS.it,
     },
-    blueSky: {
-      bg: 'bg-gradient-to-br from-blue-100 to-blue-200',
-      border: 'border-blue-300',
-      shadow: 'hover:shadow-blue-300/50',
-      iconBg: 'bg-blue-400'
+    tip: {
+      borderWidth: 6,
+      borderColor: BOARD_COLORS.all,
+      iconBg: `${BOARD_COLORS.all}1A`,
+      iconColor: BOARD_COLORS.all,
     },
-    blueOcean: {
-      bg: 'bg-gradient-to-br from-blue-200 to-blue-300',
-      border: 'border-blue-400',
-      shadow: 'hover:shadow-blue-400/50',
-      iconBg: 'bg-blue-500'
+    stat: {
+      borderWidth: 6,
+      borderColor: BOARD_COLORS.grid,
+      iconBg: `${BOARD_COLORS.grid}1A`,
+      iconColor: BOARD_COLORS.grid,
     },
-    blueRoyal: {
-      bg: 'bg-gradient-to-br from-blue-300 to-blue-400',
-      border: 'border-blue-500',
-      shadow: 'hover:shadow-blue-500/50',
-      iconBg: 'bg-blue-600'
-    },
-    blueMid: {
-      bg: 'bg-gradient-to-br from-blue-400 to-blue-500',
-      border: 'border-blue-600',
-      shadow: 'hover:shadow-blue-600/50',
-      iconBg: 'bg-blue-700'
-    },
-    blueDeep: {
-      bg: 'bg-gradient-to-br from-blue-600 to-blue-700',
-      border: 'border-blue-800',
-      shadow: 'hover:shadow-blue-800/50',
-      iconBg: 'bg-blue-900'
+    neutral: {
+      borderWidth: 6,
+      borderColor: BOARD_COLORS.mixed,
+      iconBg: `${BOARD_COLORS.mixed}1A`,
+      iconColor: BOARD_COLORS.mixed,
     },
   };
 
-  const classes = colorClasses[color];
+  const currentStyle = styles[type] || styles.neutral;
 
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={`${classes.bg} rounded-xl p-2 shadow-md ${classes.shadow} h-20 transition-shadow duration-300 cursor-default`}
+      whileHover={{ scale: 1.01, y: -2 }}
+      className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
+      style={{ borderLeftWidth: currentStyle.borderWidth, borderLeftColor: currentStyle.borderColor }}
     >
-      <div className="flex items-start gap-3">
-        {icon && (
-          <div className={`${classes.iconBg} rounded-lg p-1 flex-shrink-0 shadow-sm`}>
-            {icon}
-          </div>
-        )}
-        <p className="text-black font-medium leading-relaxed flex-1">
-          {description}
-        </p>
+      <div className="flex items-start gap-4">
+        {/* Icon */}
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-lg"
+          style={{
+            backgroundColor: currentStyle.iconBg,
+            color: currentStyle.iconColor,
+          }}
+        >
+          {icon || (
+            <span>
+              {type === 'alert'
+                ? '!'
+                : type === 'stat'
+                ? '%'
+                : type === 'tip'
+                ? '✓'
+                : 'i'}
+            </span>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1">
+          <h5 className="font-semibold text-gray-900 text-sm uppercase tracking-wide mb-1">
+            {title}
+          </h5>
+          <p className="text-gray-600 text-sm leading-relaxed">
+            {description}
+          </p>
+        </div>
       </div>
     </motion.div>
   );
