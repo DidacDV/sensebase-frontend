@@ -113,7 +113,7 @@ const Context = ({ context }: BoardContextProps) => {
             <span className="w-2 h-6 bg-[#5BA89D] rounded-full"></span>
             Secondary Trends
           </h3>
-          <div className="flex-grow min-h-[300px]">
+          <div className="flex-grow min-h-[500px]">
             {context.chart2?.data ? (
               <ChartRenderer data={context.chart2} granularity="hourly" height="300px" />
             ) : (

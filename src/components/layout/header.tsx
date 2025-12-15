@@ -15,7 +15,7 @@ export function Header() {
         {/* Center Navigation */}
         <ul className="hidden lg:flex items-center gap-10 text-[#0A1A2F] text-base font-medium">
           <li><Link to="/demo" className="hover:text-gray-600 transition-colors">Demo</Link></li>
-          <li><Link to="/new" className="hover:text-gray-600 transition-colors">New Board</Link></li>
+          <li><Link to="/boards/new" className="hover:text-gray-600 transition-colors">New Board</Link></li>
           <li><Link to="/boards" className="hover:text-gray-600 transition-colors">Your Boards</Link></li>
           <li><Link to="/pricing" className="hover:text-gray-600 transition-colors">Pricing</Link></li>
           <li><Link to="/support" className="hover:text-gray-600 transition-colors">Support</Link></li>
@@ -24,13 +24,13 @@ export function Header() {
         {/* Right side buttons */}
         <div className="flex items-center gap-5">
           <Link
-            to="/signin"
+            to="/login"
             className="text-[#0A1A2F] text-base font-medium hover:text-gray-600 transition-colors"
           >
             Sign In
           </Link>
           <Link
-            to="/get-started"
+            to="/register"
             className="
               bg-[#0A1A2F]
               text-white
