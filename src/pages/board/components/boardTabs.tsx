@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import schneiderLogoName from "@src/assets/schneiderName.png";
 
 interface BoardTabsProps {
     activeTab: string;
@@ -6,8 +7,8 @@ interface BoardTabsProps {
 }
 
 const BoardTabs: React.FC<BoardTabsProps> = ({ activeTab, setActiveTab }) => {
-    const tabs = ["Context", "Recommendations", "Tariff calculator"];
-
+    const tabs = ["Context", "Recommendations", "Tariff simulator", "Cost optimization"];
+    const schneider = ["Tariff simulator", "Cost optimization"]
     return (
         <div className="flex border-b border-gray-300 mt-3 w-full relative">
             {tabs.map((tab) => (
@@ -19,7 +20,16 @@ const BoardTabs: React.FC<BoardTabsProps> = ({ activeTab, setActiveTab }) => {
                         ${activeTab === tab ? "text-[#1A3D63]" : "text-black"}
                     `}
                 >
-                    {tab}
+                    <div className="flex items-center justify-center gap-1.5">
+                        {schneider.includes(tab) && (
+                            <img
+                                src={schneiderLogoName}
+                                alt="Schneider Electric Logo"
+                                className="h-4 w-auto"
+                            />
+                        )}
+                        {tab}
+                    </div>
 
                     {/* Animated underline */}
                     {activeTab === tab && (

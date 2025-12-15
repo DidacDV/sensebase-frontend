@@ -7,6 +7,8 @@ import ContextSkeleton from "@src/pages/board/components/boardContextSkeleton.ts
 import Sidebar from "@src/components/layout/sidebar.tsx";
 import type {SidebarNode} from "@src/types/sidebar.ts";
 import type {DataSourcesResponse} from "@src/types/boardModel.ts";
+import TariffSimulator from "@src/pages/board/components/boardTariffSimulator.tsx";
+import CostOptimization from "@src/pages/board/components/boardCostOptimization.tsx";
 import { useQueryClient } from "@tanstack/react-query";
 
 
@@ -56,62 +58,62 @@ const createDynamicPayload = (
 
 
 const BoardPage = () => {
-  const [activeTab, setActiveTab] = useState("Context");
-  const { id } = useParams<{ id: string }>();
-  const { mutate: getContext, data: boardContext, isPending: loading } = useBoardContext();
+    const [activeTab, setActiveTab] = useState("Context");
+    const { id } = useParams<{ id: string }>();
+    const { mutate: getContext, data: boardContext, isPending: loading } = useBoardContext();
 
-  const [currentSelectedIds, setCurrentSelectedIds] = useState<Set<string>>();
-  const [allDataSources, setAllDataSources] = useState<DataSourcesResponse | undefined>(undefined);
+    const [currentSelectedIds, setCurrentSelectedIds] = useState<Set<string>>();
+    const [allDataSources, setAllDataSources] = useState<DataSourcesResponse | undefined>(undefined);
 
-  const handleSelectionChange = useCallback((ids: Set<string>, sources: DataSourcesResponse | undefined) => {
-    setCurrentSelectedIds(ids);
-    setAllDataSources(sources);
-  }, []);
+    const handleSelectionChange = useCallback((ids: Set<string>, sources: DataSourcesResponse | undefined) => {
+        setCurrentSelectedIds(ids);
+        setAllDataSources(sources);
+    }, []);
 
-const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-useEffect(() => {
-    if (id && currentSelectedIds && currentSelectedIds?.size > 0 && allDataSources) {
-        const payload = createDynamicPayload(currentSelectedIds, allDataSources);
+    useEffect(() => {
+        if (id && currentSelectedIds && currentSelectedIds?.size > 0 && allDataSources) {
+            const payload = createDynamicPayload(currentSelectedIds, allDataSources);
 
-        if (payload.data_sources.length > 0) {
-            //check cache first
-            const cacheKey = ['board-context', id, JSON.stringify(payload)];
-            const cachedData = queryClient.getQueryData(cacheKey);
-            
-            if (!cachedData) {
-                //only fetch if not in cache
-                getContext({ id: id, data: payload });
+            if (payload.data_sources.length > 0) {
+                //check cache first
+                const cacheKey = ['board-context', id, JSON.stringify(payload)];
+                const cachedData = queryClient.getQueryData(cacheKey);
+
+                if (!cachedData) {
+                    //only fetch if not in cache
+                    getContext({ id: id, data: payload });
+                }
             }
         }
-    }
-}, [activeTab, allDataSources, currentSelectedIds, getContext, id, queryClient]);
+    }, [activeTab, allDataSources, currentSelectedIds, getContext, id, queryClient]);
 
+    return (
+        <div className="flex flex-row bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4" style={{ height: 'calc(100vh - 72px)' }}>
+            <Sidebar activeBoardId={id ?? ""} onSelectionChange={handleSelectionChange} />
+            <main className="flex-1 flex flex-col h-full min-w-0 relative">
+                <div className="px-10 pt-4 shrink-0 z-10">
+                    <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                </div>
 
-  return (
-      <div className="flex h-full w-full bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4">
-        <Sidebar activeBoardId={id ?? ""} onSelectionChange={handleSelectionChange} />
-        <main className="flex-1 flex flex-col h-full w-full min-w-0 relative">
-          <div className="pt-6 px-10 shrink-0 z-10">
-            <BoardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          </div>
+                <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 px-6 pb-6 pt-4">
+                    {loading && activeTab === "Context" &&<ContextSkeleton />}
 
-          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 p-6">
+                    {!loading && activeTab === "Context" && boardContext && (
+                        <Context context={boardContext} />
+                    )}
 
-            {loading && <ContextSkeleton />}
-
-            {!loading && activeTab === "Context"  && boardContext && (
-                <Context context={boardContext}  />
-            )}
-
-            {/*!loading && activeTab === "Recommendations" && (
-          <Recommendations chartData={chartData ?? undefined} />
-            )*/}
-
-          </div>
-        </main>
-    </div>
-  );
+                    {activeTab === "Tariff simulator" && (
+                        <TariffSimulator boardId={id ?? "0"}/>
+                    )}
+                    {activeTab === "Cost optimization" && (
+                        <CostOptimization />
+                    )}
+                </div>
+            </main>
+        </div>
+    );
 };
 
 export default BoardPage;
