@@ -9,6 +9,7 @@ import type {SidebarNode} from "@src/types/sidebar.ts";
 import type {DataSourcesResponse} from "@src/types/boardModel.ts";
 import TariffSimulator from "@src/pages/board/components/boardTariffSimulator.tsx";
 import CostOptimization from "@src/pages/board/components/boardCostOptimization.tsx";
+import BoardRecommendations from "@src/pages/board/components/boardRecommendations.tsx";
 import { useQueryClient } from "@tanstack/react-query";
 
 
@@ -102,6 +103,10 @@ const BoardPage = () => {
 
                     {!loading && activeTab === "Context" && boardContext && (
                         <Context context={boardContext} />
+                    )}
+
+                    {!loading && activeTab === "Recommendations" && boardContext && (
+                        <BoardRecommendations context={boardContext} boardId={id ?? ""} />
                     )}
 
                     {activeTab === "Tariff simulator" && (
