@@ -11,8 +11,25 @@ export interface MainSummary {
 
 export interface Insight {
   title: string;
+  subtitle?: string;
   briefDescription: string;
   type: InsightType;
+}
+
+export interface Recommendation {
+  title: string;
+  subtitle?: string;
+  briefDescription: string;
+  type: InsightType;
+}
+
+export interface Anomaly {
+  type: 'peak' | 'nighttime' | 'irregular' | 'trend';
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+  value: number;
+  timestamp: string;
 }
 
 export interface Keypoint {
@@ -31,4 +48,6 @@ export interface BoardContext {
   mainSummary: MainSummary;
   insights: Insight[];
   deepDive: DeepDive;
+  recommendations?: Recommendation[];
+  anomalies?: Anomaly[];
 }
