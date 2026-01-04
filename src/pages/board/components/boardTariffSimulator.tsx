@@ -40,11 +40,29 @@ const INITIAL_FORM_DATA = {
     meter_rental_daily: '2.098361',
 };
 
+const getPeriodForHour = (date: Date): string => {
+    const hour = date.getHours();
+    const day = date.getDay(); 
+    const month = date.getMonth(); 
+
+    if (day === 0 || day === 6) return 'p6';
+
+    // P6: 00-08
+    if (hour < 8) return 'p6';
+    // P2: 08-10, 14-18, 22-24
+    if ((hour >= 8 && hour < 10) || (hour >= 14 && hour < 18) || (hour >= 22)) return 'p2';
+    // P1: 10-14, 18-22
+    if ((hour >= 10 && hour < 14) || (hour >= 18 && hour < 22)) return 'p1';
+
+    return 'p6'; 
+};
+
 interface TariffSimulatorProps {
     boardId: string;
+    consumptionSeries?: any[];
 }
 
-const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
+const TariffSimulator = ({ boardId, consumptionSeries = [] }: TariffSimulatorProps) => {
     const [tariffType, setTariffType] = useState('indexed');
     const [accessToll, setAccessToll] = useState('2.1t');
     const [useRecommendations, setUseRecommendations] = useState(true);
@@ -64,8 +82,41 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
     const [modalBlueprintDescription, setModalBlueprintDescription] = useState('Saved from Tariff Simulator');
     const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [saveMessage, setSaveMessage] = useState('');
+    
+    const energyByPeriod = useMemo(() => {
+        if (!consumptionSeries || consumptionSeries.length === 0) return null;
 
-    // Populate form when blueprint is selected
+        const totals = { p1: 0, p2: 0, p3: 0, p4: 0, p5: 0, p6: 0 };
+        
+        consumptionSeries.forEach((point: any) => {
+            const val = point.value || 0;
+            const date = new Date(point.startTime);
+            const durationHours = (new Date(point.endTime).getTime() - date.getTime()) / (1000 * 60 * 60);
+
+            // IF DATA IS DAILY (Duration > 1 hour), SPLIT IT
+            if (durationHours > 1) {
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                
+                if (isWeekend) {
+                    totals.p6 += val / 1000;
+                } else {
+                    totals.p1 += (val * 0.40) / 1000; // 40% to P1
+                    totals.p2 += (val * 0.40) / 1000; // 40% to P2
+                    totals.p6 += (val * 0.20) / 1000; // 20% to P6
+                }
+            } 
+            // IF DATA IS HOURLY, KEEP EXISTING LOGIC
+            else {
+                const period = getPeriodForHour(date);
+                if (totals[period] !== undefined) {
+                    totals[period] += val / 1000;
+                }
+            }
+        });
+        console.log(totals)
+        return totals;
+    }, [consumptionSeries, timePeriod]);
+
     useEffect(() => {
         if (selectedBlueprint) {
             setFormData({
@@ -168,12 +219,11 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
         });
     };
 
-    const calculateCosts = useMemo(() => {
+const calculateCosts = useMemo(() => {
         if (!formData.contracted_power_p1) return null;
 
         const days = timePeriod === 'day' ? 1 : timePeriod === 'week' ? 7 : 30;
 
-        // Fixed costs (power) per period
         const fixedCosts = [
             {
                 name: 'P1 Power',
@@ -207,7 +257,41 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
             }
         ];
 
-        // Other fixed costs
+        const e = energyByPeriod || { p1: 0, p2: 0, p3: 0, p4: 0, p5: 0, p6: 0 };
+        
+        const variableCosts = [
+            {
+                name: 'P1 Energy',
+                peaje: e.p1 * parseFloat(formData.peaje_energy_p1 || '0'),
+                cargo: e.p1 * parseFloat(formData.cargo_energy_p1 || '0')
+            },
+            {
+                name: 'P2 Energy',
+                peaje: e.p2 * parseFloat(formData.peaje_energy_p2 || '0'),
+                cargo: e.p2 * parseFloat(formData.cargo_energy_p2 || '0')
+            },
+
+            {
+                name: 'P3 Energy',
+                peaje: e.p3 * parseFloat(formData.peaje_energy_p2 || '0'), // Using P2 price as fallback/example
+                cargo: e.p3 * parseFloat(formData.cargo_energy_p2 || '0')
+            },
+            {
+                name: 'P4 Energy',
+                peaje: e.p4 * parseFloat(formData.peaje_energy_p2 || '0'),
+                cargo: e.p4 * parseFloat(formData.cargo_energy_p2 || '0')
+            },
+            {
+                name: 'P5 Energy',
+                peaje: e.p5 * parseFloat(formData.peaje_energy_p2 || '0'),
+                cargo: e.p5 * parseFloat(formData.cargo_energy_p2 || '0')
+            },
+            {
+                name: 'P6 Energy',
+                peaje: e.p6 * parseFloat(formData.peaje_energy_p6 || '0'),
+                cargo: e.p6 * parseFloat(formData.cargo_energy_p6 || '0')
+            },
+        ];
         const otherCosts = {
             socialBonus: parseFloat(formData.social_bonus_financing_daily) * days,
             meterRental: parseFloat(formData.meter_rental_daily) * days
@@ -215,15 +299,26 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
 
         const totalFixedPeajes = fixedCosts.reduce((sum, item) => sum + item.peaje, 0);
         const totalFixedCargos = fixedCosts.reduce((sum, item) => sum + item.cargo, 0);
+        
+        // New Variable Totals
+        const totalVariablePeajes = variableCosts.reduce((sum, item) => sum + item.peaje, 0);
+        const totalVariableCargos = variableCosts.reduce((sum, item) => sum + item.cargo, 0);
+
         const totalOther = otherCosts.socialBonus + otherCosts.meterRental;
-        const subtotal = totalFixedPeajes + totalFixedCargos + totalOther;
+        
+        // Sum Fixed + Variable
+        const subtotal = totalFixedPeajes + totalFixedCargos + totalVariablePeajes + totalVariableCargos + totalOther;
+        
         const electricityTax = subtotal * (parseFloat(formData.electricity_tax_percentage) / 100);
         const total = subtotal + electricityTax;
 
         return {
             fixedCosts,
+            variableCosts, 
             totalFixedPeajes,
             totalFixedCargos,
+            totalVariablePeajes,
+            totalVariableCargos, 
             otherCosts,
             totalOther,
             electricityTax,
@@ -231,112 +326,67 @@ const TariffSimulator = ({ boardId }: TariffSimulatorProps) => {
             total,
             days
         };
-    }, [formData, timePeriod]);
+    }, [formData, timePeriod, energyByPeriod]);
 
-    // Renamed the original chartOption to barChartOption for clarity
     const barChartOption = useMemo(() => {
         if (!calculateCosts) return null;
 
-        const periodData = [
-            { name: 'P1', peaje: calculateCosts.fixedCosts[0].peaje, cargo: calculateCosts.fixedCosts[0].cargo },
-            { name: 'P2', peaje: calculateCosts.fixedCosts[1].peaje, cargo: calculateCosts.fixedCosts[1].cargo },
-            { name: 'P3', peaje: calculateCosts.fixedCosts[2].peaje, cargo: calculateCosts.fixedCosts[2].cargo },
-            { name: 'P4', peaje: calculateCosts.fixedCosts[3].peaje, cargo: calculateCosts.fixedCosts[3].cargo },
-            { name: 'P5', peaje: calculateCosts.fixedCosts[4].peaje, cargo: calculateCosts.fixedCosts[4].cargo },
-            { name: 'P6', peaje: calculateCosts.fixedCosts[5].peaje, cargo: calculateCosts.fixedCosts[5].cargo },
-        ];
-
-        // Filter data: Keep only periods where Peaje OR Cargo cost is greater than 0.001
-        const filteredData = periodData.filter(p => p.peaje > 0.001 || p.cargo > 0.001);
-
-        // If no fixed power costs are found, return null to trigger the Pie Chart failover
-        if (filteredData.length === 0) {
-            return null;
-        }
-
-        const categories = filteredData.map(p => p.name);
-        const peajesData = filteredData.map(p => parseFloat(p.peaje.toFixed(2)));
-        const cargosData = filteredData.map(p => parseFloat(p.cargo.toFixed(2)));
+        const periods = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+        const peajesPowerData = calculateCosts.fixedCosts.map(c => parseFloat(c.peaje.toFixed(2)));
+        const cargosPowerData = calculateCosts.fixedCosts.map(c => parseFloat(c.cargo.toFixed(2)));
+        const peajesEnergyData = calculateCosts.variableCosts.map(c => parseFloat(c.peaje.toFixed(2)));
+        const cargosEnergyData = calculateCosts.variableCosts.map(c => parseFloat(c.cargo.toFixed(2)));
 
         return {
             title: {
-                text: `Fixed Power Cost Breakdown - ${timePeriod === 'day' ? 'Daily' : timePeriod === 'week' ? 'Weekly' : 'Monthly'}`,
+                text: `Cost Breakdown (Fixed + Variable)`,
                 left: 'center',
-                textStyle: {
-                    color: '#1A3D63',
-                    fontSize: 16,
-                    fontWeight: 'bold'
-                }
+                textStyle: { color: '#1A3D63', fontSize: 16, fontWeight: 'bold' }
             },
             tooltip: {
                 trigger: 'axis',
-                axisPointer: { type: 'shadow' },
-                formatter: (params: any) => {
-                    let tooltip = `<div style="font-weight: bold; margin-bottom: 8px;">Period ${params[0].axisValue}</div>`;
-                    params.forEach((param: any) => {
-                        tooltip += `
-                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                        <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; margin-right: 8px; border-radius: 50%;"></span>
-                        <span>${param.seriesName}: </span>
-                        <span style="font-weight: bold; margin-left: 8px;">${param.value.toFixed(2)} €</span>
-                    </div>
-                `;
-                    });
-                    return tooltip;
-                }
+                axisPointer: { type: 'shadow' }
             },
             legend: {
-                data: ['Peajes', 'Cargos'],
-                top: 30,
-                textStyle: { color: '#374151' }
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                top: 80,
-                containLabel: true
+                data: ['Power Peajes', 'Power Cargos', 'Energy Peajes', 'Energy Cargos'],
+                top: 30
             },
             xAxis: {
                 type: 'category',
-                data: categories,
-                axisLabel: { color: '#6B7280' },
-                axisLine: { lineStyle: { color: '#D1D5DB' } }
+                data: periods
             },
             yAxis: {
                 type: 'value',
-                name: 'Cost (€)',
-                nameTextStyle: { color: '#374151' },
-                axisLabel: {
-                    formatter: '{value} €',
-                    color: '#6B7280'
-                },
-                axisLine: { lineStyle: { color: '#D1D5DB' } },
-                splitLine: { lineStyle: { color: '#E5E7EB', type: 'dashed' } }
+                name: 'Cost (€)'
             },
             series: [
                 {
-                    name: 'Peajes',
+                    name: 'Power Peajes',
                     type: 'bar',
                     stack: 'total',
-                    barWidth: '60%',
-                    data: peajesData,
-                    itemStyle: {
-                        color: '#3B82F6',
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    }
+                    data: peajesPowerData,
+                    itemStyle: { color: '#93C5FD' } // Light Blue
                 },
                 {
-                    name: 'Cargos',
+                    name: 'Power Cargos',
                     type: 'bar',
                     stack: 'total',
-                    data: cargosData,
-                    itemStyle: {
-                        color: '#8B5CF6',
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    }
+                    data: cargosPowerData,
+                    itemStyle: { color: '#C4B5FD' } // Light Purple
+                },
+                {
+                    name: 'Energy Peajes',
+                    type: 'bar',
+                    stack: 'total',
+                    data: peajesEnergyData,
+                    itemStyle: { color: '#2563EB' } // Dark Blue
+                },
+                {
+                    name: 'Energy Cargos',
+                    type: 'bar',
+                    stack: 'total',
+                    data: cargosEnergyData,
+                    itemStyle: { color: '#7C3AED' } // Dark Purple
                 }
             ]
         };

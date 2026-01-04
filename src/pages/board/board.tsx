@@ -45,7 +45,7 @@ const createDynamicPayload = (
         tenant_id: node.tenantId ?? defaultTenantId,
         site_id: node.siteId ?? null,
         building_id: node.buildingId ?? null,
-        start_date: "2025-11-23",
+        start_date: "2025-11-13",
         end_date: "2025-11-24",
         aggregation: "DAY",
         timezone: "Europe/Madrid"
@@ -110,7 +110,8 @@ const BoardPage = () => {
                     )}
 
                     {activeTab === "Tariff simulator" && (
-                        <TariffSimulator boardId={id ?? "0"}/>
+                        <TariffSimulator boardId={id ?? "0"}
+                        consumptionSeries={boardContext?.consumption_series || []} />
                     )}
                     {activeTab === "Cost optimization" && (
                         <CostOptimization />
