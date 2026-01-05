@@ -113,7 +113,7 @@ const BoardPage = () => {
                         <TariffSimulator boardId={id ?? "0"}/>
                     )}
                     {activeTab === "Cost optimization" && (
-                        <CostOptimization />
+                        <CostOptimization boardId={id ?? ""}/>
                     )}
                 </div>
             </main>
