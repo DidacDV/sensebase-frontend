@@ -11,6 +11,7 @@ import TariffSimulator from "@src/pages/board/components/boardTariffSimulator.ts
 import CostOptimization from "@src/pages/board/components/boardCostOptimization.tsx";
 import BoardRecommendations from "@src/pages/board/components/boardRecommendations.tsx";
 import { useQueryClient } from "@tanstack/react-query";
+import TariffComparator from "./components/boardTariffComparator";
 
 
 
@@ -115,6 +116,9 @@ const BoardPage = () => {
                     )}
                     {activeTab === "Cost optimization" && (
                         <CostOptimization />
+                    )}
+                    {activeTab == "Tariff comparator" && (
+                        <TariffComparator boardId={id ?? "0"} consumptionSeries={boardContext?.consumption_series || []} />
                     )}
                 </div>
             </main>
