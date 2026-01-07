@@ -30,6 +30,17 @@ const tariffBlueprintApi = {
         );
         return responseData;
     },
+    optimize: async (payload: {
+        tariffId: string;
+        consumption: any;
+        recommendations: Array<{ type: string; parameters: any }>
+    }) => {
+        const { data } = await authenticationService.post(
+            '/tariffs/optimize/',
+            payload
+        );
+        return data;
+    },
 };
 
 export const tariffBlueprintKeys = {
@@ -59,5 +70,22 @@ export function useCreateTariffBlueprint() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: tariffBlueprintKeys.all });
         },
+    });
+}
+
+export function useOptimizeTariff(options?: any) {
+    return useMutation({
+        mutationFn: (payload: {
+            tariffId: string;
+            consumption: any;
+            recommendations: Array<{ type: string; parameters: any }>
+        }) => tariffBlueprintApi.optimize(payload),
+        onSuccess: (data) => {
+            console.log('Optimization successful:', data);
+        },
+        onError: (error) => {
+            console.error('Optimization failed:', error);
+        },
+        ...options
     });
 }

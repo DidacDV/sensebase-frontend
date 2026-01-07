@@ -1,6 +1,35 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+    type FormState,
+    mockAnomalies,
+    mockPatterns,
+    mockRecommendations,
+} from "@src/types/costOptimizationModel.ts";
+import {useBoardTariffBlueprints, useOptimizeTariff} from "@src/services/tariffService.ts";
 
-const CostOptimization = () => {
+interface CostOptimizationProps {
+    boardId: string;
+}
+
+const CostOptimization = ({ boardId }: CostOptimizationProps) => {
+    const queryClient = useQueryClient();
+    // Form State
+    const [formState, setFormState] = useState<FormState>({
+        tariffId: '',
+        selectedAnomalies: [],
+        selectedRecommendations: ['rec-1', 'rec-2', 'rec-3'],
+        consumption: {}
+    });
+
+    const [optimizationResult, setOptimizationResult] = useState<any>(null);
+    const [newBlueprintId, setNewBlueprintId] = useState<string | null>(null);
+
+    const { data: blueprints, isLoading: isLoadingTariffs, isFetching } = useBoardTariffBlueprints(boardId);
+    const createdBlueprint = blueprints?.find(b => b.id === newBlueprintId);
+
+    // Animation variants
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -17,6 +46,36 @@ const CostOptimization = () => {
         }
     };
 
+    const { mutate: optimize, isPending: isOptimizing } = useOptimizeTariff({
+        onSuccess: async (data) => {
+            setOptimizationResult(data);
+            setNewBlueprintId(data.optimizedBlueprintId);
+            await queryClient.invalidateQueries({ queryKey: ['boardTariffBlueprints', boardId] });
+            await queryClient.refetchQueries({ queryKey: ['boardTariffBlueprints', boardId] });
+        }
+    });
+    const handleOptimize = () => {
+        if (!formState.tariffId) {
+            alert('Please select a tariff first');
+            return;
+        }
+
+        // Map your UI state to the backend-expected format
+        const payload = {
+            tariffId: formState.tariffId,
+            consumption: formState.consumption,
+            recommendations: formState.selectedRecommendations.map(recId => {
+                const rec = mockRecommendations.find(r => r.id === recId);
+                return {
+                    type: rec?.type || '',
+                    parameters: rec?.parameters || {}
+                };
+            })
+        };
+
+        optimize(payload);
+    };
+
     return (
         <motion.div
             variants={containerVariants}
@@ -29,14 +88,43 @@ const CostOptimization = () => {
                 variants={itemVariants as any}
                 className="w-80 bg-white rounded-lg shadow-md p-6 flex flex-col gap-4 overflow-y-auto"
             >
-                {/* Tariff X Parameters Header */}
+                {/* Tariff Selector */}
                 <div className="flex items-center justify-between border-b pb-3">
-                    <h3 className="text-lg font-semibold">Tariff X Parameters</h3>
-                    <button className="text-gray-600">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                    <h3 className="text-lg font-semibold">Tariff Blueprint</h3>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Tariff
+                    </label>
+                    {isLoadingTariffs ? (
+                        <div className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-500">
+                            Loading tariffs...
+                        </div>
+                    ) : (
+                        <select
+                            value={formState.tariffId}
+                            onChange={(e) => setFormState(prev => ({
+                                ...prev,
+                                tariffId: e.target.value,
+                                consumption: {
+                                    p1: 100,
+                                    p2: 150,
+                                    p3: 80,
+                                    p4: 60,
+                                    p5: 40,
+                                    p6: 70
+                                }
+                            }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Select a tariff...</option>
+                            {blueprints?.map((tariff) => (
+                                <option key={tariff.id} value={tariff.id}>
+                                    {tariff.name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 {/* Anomalies Section */}
@@ -44,22 +132,34 @@ const CostOptimization = () => {
                     <div className="flex items-center justify-between mb-3">
                         <h4 className="text-sm font-semibold text-gray-700">Anomalies</h4>
                         <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
-                            3 detected
+                            {mockAnomalies.length} detected
                         </span>
                     </div>
                     <div className="space-y-2">
-                        {[
-                            { title: 'Pico anómalo', subtitle: '14:30h - 2.4 kW sobre media', severity: 'orange' },
-                            { title: 'Consumo nocturno', subtitle: '02:00-05:00h - Elevado >180%', severity: 'red' },
-                            { title: 'Patrón irregular', subtitle: 'Picos de semana variables', severity: 'blue' }
-                        ].map((anomaly, i) => (
-                            <div key={i} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
-                                <div className={`w-1 h-full bg-${anomaly.severity}-500 rounded`}></div>
+                        {mockAnomalies.map((anomaly) => (
+                            <div key={anomaly.id} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
+                                <div className={`w-1 h-full rounded ${
+                                    anomaly.severity === 'high' ? 'bg-red-500' :
+                                        anomaly.severity === 'medium' ? 'bg-orange-500' :
+                                            'bg-blue-500'
+                                }`}></div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800">{anomaly.title}</p>
-                                    <p className="text-xs text-gray-600">{anomaly.subtitle}</p>
+                                    <p className="text-xs text-gray-600">{anomaly.description}</p>
                                 </div>
-                                <input type="checkbox" className="mt-1" />
+                                <input
+                                    type="checkbox"
+                                    className="mt-1"
+                                    checked={formState.selectedAnomalies.includes(anomaly.id)}
+                                    onChange={(e) => {
+                                        setFormState(prev => ({
+                                            ...prev,
+                                            selectedAnomalies: e.target.checked
+                                                ? [...prev.selectedAnomalies, anomaly.id]
+                                                : prev.selectedAnomalies.filter(id => id !== anomaly.id)
+                                        }));
+                                    }}
+                                />
                             </div>
                         ))}
                     </div>
@@ -68,24 +168,32 @@ const CostOptimization = () => {
                 {/* Recommendations Section */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-gray-700">Recomendations</h4>
+                        <h4 className="text-sm font-semibold text-gray-700">Recommendations</h4>
                         <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-medium">
-                            3 actions
+                            {mockRecommendations.length} actions
                         </span>
                     </div>
                     <div className="space-y-2">
-                        {[
-                            { icon: '💰', title: 'Cambio de tarifa', subtitle: '2.0TD ahorro estimado €30/mes' },
-                            { icon: '⚡', title: 'Desplazar consumo', subtitle: 'A valle: 00:00-08:00h' },
-                            { icon: '📦', title: 'Almacenamiento', subtitle: 'BOI estimado: 4.2 años' }
-                        ].map((rec, i) => (
-                            <div key={i} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
+                        {mockRecommendations.map((rec) => (
+                            <div key={rec.id} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
                                 <span className="text-lg">{rec.icon}</span>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800">{rec.title}</p>
-                                    <p className="text-xs text-gray-600">{rec.subtitle}</p>
+                                    <p className="text-xs text-gray-600">{rec.description}</p>
                                 </div>
-                                <input type="checkbox" className="mt-1" defaultChecked />
+                                <input
+                                    type="checkbox"
+                                    className="mt-1"
+                                    checked={formState.selectedRecommendations.includes(rec.id)}
+                                    onChange={(e) => {
+                                        setFormState(prev => ({
+                                            ...prev,
+                                            selectedRecommendations: e.target.checked
+                                                ? [...prev.selectedRecommendations, rec.id]
+                                                : prev.selectedRecommendations.filter(id => id !== rec.id)
+                                        }));
+                                    }}
+                                />
                             </div>
                         ))}
                     </div>
@@ -100,24 +208,39 @@ const CostOptimization = () => {
                         </span>
                     </div>
                     <div className="space-y-2">
-                        {[
-                            { icon: '↑', title: 'Mañana', time: '08:00-12:00h', value: '3.2 kW', color: 'green' },
-                            { icon: '↓', title: 'Mediodía', time: '14:00-16:00h', value: '1.8 kW', color: 'blue' },
-                            { icon: '↑', title: 'Tarde', time: '19:00-21:00h', value: '3.8 kW', color: 'purple' }
-                        ].map((pattern, i) => (
-                            <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        {mockPatterns.map((pattern) => (
+                            <div key={pattern.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                 <div className="flex items-center gap-2">
-                                    <span className={`text-${pattern.color}-500`}>{pattern.icon}</span>
+                                    <span className={`${
+                                        pattern.trend === 'up' ? 'text-green-500' :
+                                            pattern.trend === 'down' ? 'text-blue-500' :
+                                                'text-purple-500'
+                                    }`}>
+                                        {pattern.trend === 'up' ? '↑' : pattern.trend === 'down' ? '↓' : '→'}
+                                    </span>
                                     <div>
                                         <p className="text-sm font-medium text-gray-800">{pattern.title}</p>
-                                        <p className="text-xs text-gray-600">{pattern.time}</p>
+                                        <p className="text-xs text-gray-600">{pattern.timeRange}</p>
                                     </div>
                                 </div>
-                                <span className={`text-sm font-semibold text-${pattern.color}-600`}>{pattern.value}</span>
+                                <span className={`text-sm font-semibold ${
+                                    pattern.trend === 'up' ? 'text-green-600' :
+                                        pattern.trend === 'down' ? 'text-blue-600' :
+                                            'text-purple-600'
+                                }`}>{pattern.value}</span>
                             </div>
                         ))}
                     </div>
                 </div>
+
+                {/* Optimize Button */}
+                <button
+                    onClick={handleOptimize}
+                    disabled={!formState.tariffId || isOptimizing}
+                    className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                    {isOptimizing ? 'Optimizing...' : 'Optimize Cost'}
+                </button>
 
                 {/* Footer Text */}
                 <div className="mt-auto pt-4 border-t">
@@ -136,27 +259,38 @@ const CostOptimization = () => {
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-2xl font-bold mb-4">Cost optimization</h2>
                     <div className="flex gap-6">
-                        {/* Current Costs */}
+                        {/* Costo Actual */}
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm text-gray-600">↑ Current costs</span>
+                                <span className="text-sm text-gray-600">Current monthly cost</span>
                             </div>
-                            <div className="text-4xl font-bold text-red-500">1827.12<span className="text-2xl">€</span></div>
+                            <div className="text-4xl font-bold text-red-500">
+                                {optimizationResult?.costAnalysis?.current?.totalMonthly?.toFixed(2) ?? '0.00'}
+                                <span className="text-2xl">€</span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">
+                                Annual: {optimizationResult?.costAnalysis?.current?.totalAnnual?.toFixed(2)}€
+                            </p>
                         </div>
 
-                        {/* Arrow */}
                         <div className="flex items-center">
                             <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </div>
 
-                        {/* Optimized Costs */}
+                        {/* Costo Optimizado */}
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm text-gray-600">↓ Optimized costs</span>
+                                <span className="text-sm text-gray-600">Optimized monthly cost</span>
                             </div>
-                            <div className="text-4xl font-bold text-green-500">1527.12<span className="text-2xl">€</span></div>
+                            <div className="text-4xl font-bold text-green-500">
+                                {optimizationResult?.costAnalysis?.optimized?.totalMonthly?.toFixed(2) ?? '0.00'}
+                                <span className="text-2xl">€</span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">
+                                Annual: {optimizationResult?.costAnalysis?.optimized?.totalAnnual?.toFixed(2)}€
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -167,81 +301,114 @@ const CostOptimization = () => {
                     <div className="flex gap-8">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm text-gray-600">↑ Last month</span>
+                                <span className="text-sm text-gray-600">Monthly Savings</span>
                             </div>
-                            <div className="text-3xl font-bold text-blue-600">1827.12<span className="text-xl">€</span></div>
+                            <div className="text-3xl font-bold text-blue-600">
+                                {optimizationResult?.costAnalysis?.savings?.monthlyAbsolute?.toFixed(2) ?? '0.00'}
+                                <span className="text-xl">€</span>
+                            </div>
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm text-gray-600">↑↑ Yearly</span>
+                                <span className="text-sm text-gray-600">Yearly Savings</span>
                             </div>
-                            <div className="text-3xl font-bold text-blue-600">25205.23<span className="text-xl">€</span></div>
+                            <div className="text-3xl font-bold text-blue-600">
+                                {optimizationResult?.costAnalysis?.savings?.yearlyAbsolute?.toFixed(2) ?? '0.00'}
+                                <span className="text-xl">€</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-sm text-gray-600">Reduction</span>
+                            </div>
+                            <div className="text-3xl font-bold text-purple-600">
+                                {optimizationResult?.costAnalysis?.savings?.percentageReduction?.toFixed(1) ?? '0'}
+                                <span className="text-xl">%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Chart Section */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold">Standard vs Optimal cost</h3>
-                        <div className="flex gap-2">
-                            <button className="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded font-medium">Hoy</button>
-                            <button className="px-3 py-1 text-sm bg-gray-200 rounded">7 días</button>
-                            <button className="px-3 py-1 text-sm bg-gray-200 rounded">30 días</button>
-                        </div>
-                    </div>
-                    {/* Placeholder for chart */}
-                    <div className="h-64 bg-gray-50 rounded flex items-center justify-center text-gray-500">
-                        Bar chart comparing standard (red) vs optimal (green) costs by hour
-                    </div>
-                </div>
 
-                {/* Recommendations Section */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-semibold mb-4">Recommendations</h3>
+                    <h3 className="text-lg font-semibold mb-4">Applied Recommendations</h3>
                     <div className="space-y-3">
-                        <div className="border-l-4 border-blue-500 pl-4">
-                            <h4 className="font-semibold">Cambio de tarifa</h4>
-                            <p className="text-sm text-gray-600">- 32.12€ saved per day</p>
-                            <p className="text-sm text-blue-600 italic">If hover → view on graph?</p>
-                        </div>
-                        <div className="border-l-4 border-green-500 pl-4">
-                            <h4 className="font-semibold">Evitar x i y</h4>
-                            <p className="text-sm text-gray-600">- 32.12€ saved per day</p>
-                            <ul className="text-sm text-gray-600 list-disc list-inside">
-                                <li>...</li>
-                                <li>...</li>
-                            </ul>
-                        </div>
+                        {optimizationResult?.recommendationsApplied?.length > 0 ? (
+                            optimizationResult.recommendationsApplied.map((rec: any, index: number) => (
+                                <div key={index} className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50/50 rounded-r">
+                                    <h4 className="font-semibold capitalize text-blue-900">
+                                        {rec.type?.replace(/_/g, ' ') || 'Action'}
+                                    </h4>
+                                    {rec.parameters && Object.keys(rec.parameters).length > 0 && (
+                                        <div className="mt-1 text-xs text-gray-600">
+                                            {Object.entries(rec.parameters).map(([key, val]) => (
+                                                <span key={key} className="inline-block mr-3">
+                                    <span className="font-medium">{key}:</span> {String(val)}
+                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-400 italic">No specific actions applied in this optimization.</p>
+                        )}
                     </div>
                 </div>
 
-                {/* Other Changes Section */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-semibold mb-4">Other changes applied to the optimal tariff</h3>
-                    <div className="grid grid-cols-3 gap-3 mb-3">
-                        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg text-sm font-medium">
-                            Power in contract reduced
-                        </button>
-                        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg text-sm font-medium">
-                            Deleted fixed cost X
-                        </button>
-                        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg text-sm font-medium">
-                            blablabla
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg text-sm font-medium">
-                            Power in contract reduced
-                        </button>
-                        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg text-sm font-medium">
-                            Deleted fixed cost X
-                        </button>
-                        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg text-sm font-medium">
-                            blablabla
-                        </button>
+                    <h3 className="text-lg font-semibold mb-4">Optimized Monthly Breakdown</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {optimizationResult?.costAnalysis?.optimized?.breakdown &&
+                            Object.entries(optimizationResult.costAnalysis.optimized.breakdown).map(([key, value]: [string, any]) => (
+                                <div key={key} className="p-3 bg-gray-50 rounded border border-gray-100">
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold truncate">
+                                        {key.replace(/_/g, ' ')}
+                                    </p>
+                                    <p className="text-lg font-bold text-gray-800">
+                                        {value?.toFixed(2)}€
+                                    </p>
+                                </div>
+                            ))
+                        }
                     </div>
                 </div>
+
+                {newBlueprintId && createdBlueprint && !isFetching && (
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-md p-6 border-2 border-green-300">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-green-900">New Optimized Blueprint Created!</h3>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 space-y-3">
+                            <div>
+                                <p className="text-xs text-gray-500 uppercase font-semibold">Blueprint Name</p>
+                                <p className="text-lg font-bold text-gray-900">{createdBlueprint.name}</p>
+                            </div>
+
+                            {createdBlueprint.description && (
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase font-semibold">Description</p>
+                                    <p className="text-sm text-gray-700">{createdBlueprint.description}</p>
+                                </div>
+                            )}
+
+                            <div className="flex gap-4 pt-3 border-t">
+                                <button
+                                    onClick={() => setFormState(prev => ({ ...prev, tariffId: newBlueprintId }))}
+                                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors"
+                                >
+                                    Use This Blueprint
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </motion.div>
         </motion.div>
     );

@@ -115,7 +115,7 @@ const BoardPage = () => {
                         consumptionSeries={boardContext?.consumption_series || []} />
                     )}
                     {activeTab === "Cost optimization" && (
-                        <CostOptimization />
+                        <CostOptimization boardId={id ?? ""}/>
                     )}
                     {activeTab == "Tariff comparator" && (
                         <TariffComparator boardId={id ?? "0"} consumptionSeries={boardContext?.consumption_series || []} />
