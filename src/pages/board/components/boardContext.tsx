@@ -129,7 +129,7 @@ const Context = ({ context }: BoardContextProps) => {
             {context.chart1?.data ? (
               <ChartRenderer
                 data={context.chart1}
-                granularity="hourly"
+                granularity="daily"
                 height="350px"
               />
             ) : (
@@ -182,7 +182,7 @@ const Context = ({ context }: BoardContextProps) => {
             {context.chart2?.data ? (
               <ChartRenderer
                 data={context.chart2}
-                granularity="hourly"
+                granularity="daily"
                 height="350px"
               />
             ) : (
