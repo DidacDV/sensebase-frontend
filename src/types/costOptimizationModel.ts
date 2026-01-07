@@ -74,17 +74,29 @@ export const mockRecommendations: Recommendation[] = [
     {
         id: 'rec-1',
         type: 'LOWER_POWER',
-        title: 'Reducir Potencia',
-        description: 'Optimizar P1 a 3.5kW',
+        title: 'Reducir Potencia P1',
+        description: 'Reducir P1 de 5.0kW a 3.5kW',
         icon: '📉',
         parameters: {
             period: 'p1',
-            newValue: 3.5
+            newValue: 3.5  // This will reduce fixed power costs
         },
         estimatedSavings: 15
     },
     {
         id: 'rec-2',
+        type: 'LOWER_POWER',
+        title: 'Reducir Potencia P2',
+        description: 'Reducir P2 de 4.0kW a 2.5kW',
+        icon: '📉',
+        parameters: {
+            period: 'p2',
+            newValue: 2.5  // Additional power reduction
+        },
+        estimatedSavings: 12
+    },
+    {
+        id: 'rec-3',
         type: 'SHIFT_CONSUMPTION',
         title: 'Desplazar consumo',
         description: 'Mover carga a horas valle',
@@ -92,7 +104,7 @@ export const mockRecommendations: Recommendation[] = [
         parameters: {
             targetPeriod: 'valley'
         },
-        estimatedSavings: 45
+        estimatedSavings: 10
     }
 ];
 

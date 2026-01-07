@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
     type FormState,
     mockAnomalies,
@@ -13,6 +14,7 @@ interface CostOptimizationProps {
 }
 
 const CostOptimization = ({ boardId }: CostOptimizationProps) => {
+    const queryClient = useQueryClient();
     // Form State
     const [formState, setFormState] = useState<FormState>({
         tariffId: '',
@@ -22,8 +24,10 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
     });
 
     const [optimizationResult, setOptimizationResult] = useState<any>(null);
+    const [newBlueprintId, setNewBlueprintId] = useState<string | null>(null);
 
-    const { data: blueprints, isLoading: isLoadingTariffs } = useBoardTariffBlueprints(boardId);
+    const { data: blueprints, isLoading: isLoadingTariffs, isFetching } = useBoardTariffBlueprints(boardId);
+    const createdBlueprint = blueprints?.find(b => b.id === newBlueprintId);
 
     // Animation variants
     const containerVariants = {
@@ -43,11 +47,13 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
     };
 
     const { mutate: optimize, isPending: isOptimizing } = useOptimizeTariff({
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             setOptimizationResult(data);
+            setNewBlueprintId(data.optimizedBlueprintId);
+            await queryClient.invalidateQueries({ queryKey: ['boardTariffBlueprints', boardId] });
+            await queryClient.refetchQueries({ queryKey: ['boardTariffBlueprints', boardId] });
         }
     });
-
     const handleOptimize = () => {
         if (!formState.tariffId) {
             alert('Please select a tariff first');
@@ -97,7 +103,18 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                     ) : (
                         <select
                             value={formState.tariffId}
-                            onChange={(e) => setFormState(prev => ({ ...prev, tariffId: e.target.value }))}
+                            onChange={(e) => setFormState(prev => ({
+                                ...prev,
+                                tariffId: e.target.value,
+                                consumption: {
+                                    p1: 100,
+                                    p2: 150,
+                                    p3: 80,
+                                    p4: 60,
+                                    p5: 40,
+                                    p6: 70
+                                }
+                            }))}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">Select a tariff...</option>
@@ -356,6 +373,42 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                         }
                     </div>
                 </div>
+
+                {newBlueprintId && createdBlueprint && !isFetching && (
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-md p-6 border-2 border-green-300">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-green-900">New Optimized Blueprint Created!</h3>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 space-y-3">
+                            <div>
+                                <p className="text-xs text-gray-500 uppercase font-semibold">Blueprint Name</p>
+                                <p className="text-lg font-bold text-gray-900">{createdBlueprint.name}</p>
+                            </div>
+
+                            {createdBlueprint.description && (
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase font-semibold">Description</p>
+                                    <p className="text-sm text-gray-700">{createdBlueprint.description}</p>
+                                </div>
+                            )}
+
+                            <div className="flex gap-4 pt-3 border-t">
+                                <button
+                                    onClick={() => setFormState(prev => ({ ...prev, tariffId: newBlueprintId }))}
+                                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors"
+                                >
+                                    Use This Blueprint
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </motion.div>
         </motion.div>
     );
