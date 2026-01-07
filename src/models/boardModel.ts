@@ -43,6 +43,7 @@ export interface DeepDive {
 }
 
 export interface BoardContext {
+  consumption_series: never[];
   chart1: ChartStructure;
   chart2: ChartStructure;
   mainSummary: MainSummary;
