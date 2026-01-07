@@ -2,13 +2,43 @@ import { useState, useMemo } from 'react';
 import { useBoardTariffBlueprints } from "@src/services/tariffService.ts";
 import ReactECharts from "echarts-for-react";
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, CheckCircle, BarChart3, Wallet } from 'lucide-react';
+import { AlertTriangle, CheckCircle, BarChart3, Wallet, Star } from 'lucide-react';
 
 interface TariffComparatorProps {
     boardId: string;
     consumptionSeries?: any[];
 }
 
+const WinnerBadge = () => (
+    <motion.div
+        initial={{ scale: 0, rotate: -180, opacity: 0 }}
+        animate={{ scale: 1, rotate: 0, opacity: 1 }}
+        transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20
+        }}
+        className="absolute top-4 right-4 z-20 pointer-events-none"
+    >
+        <motion.div
+            animate={{
+                scale: [1, 1.2, 1],
+                filter: [
+                    "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07))",
+                    "drop-shadow(0 0 15px rgba(250, 204, 21, 0.6))",
+                    "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07))"
+                ]
+            }}
+            transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }}
+        >
+            <Star className="w-8 h-8 fill-yellow-400 text-yellow-500" />
+        </motion.div>
+    </motion.div>
+);
 
 const THEME = {
   planA: {
@@ -289,6 +319,9 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                 : 'bg-white text-slate-900'
                         }`}
                         >
+                            {isComparisonActive && savings?.winnerId === selectedBlueprintIdA && (
+                                <WinnerBadge />
+                            )}
                             <div className="flex flex-col h-full">
                                 <label className="text-xs font-bold uppercase text-black tracking-wider mb-4 flex items-center gap-2">
                                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: THEME.planA.base }}></div>
@@ -300,7 +333,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                     className="w-full text-lg font-medium text-slate-900 bg-transparent border-0 border-b focus:border-blue-600 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
                                 >
                                     <option value="">Select Plan A</option>
-                                    {blueprints?.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                                    {blueprints?.filter((b) => b.id.toString() !== selectedBlueprintIdB).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                                 </select>
                                 
                                 {costsA ? (
@@ -337,6 +370,9 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                 : 'bg-white text-slate-900'
                         }`}
                         >
+                            {isComparisonActive && savings?.winnerId === selectedBlueprintIdB && (
+                                <WinnerBadge />
+                            )}
                             <div className="flex flex-col h-full">
                                 <label className="text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
                                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'white'}}></div>
@@ -345,10 +381,10 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                 <select
                                     value={selectedBlueprintIdB}
                                     onChange={(e) => setSelectedBlueprintIdB(e.target.value)}
-                                    className="w-full text-lg font-medium text-white bg-transparent border-0 border-b border-gray-200 focus:border-violet-600 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
+                                    className="w-full text-lg font-medium bg-transparent border-0 border-b border-gray-200 focus:border-violet-600 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
                                 >
                                     <option value="" className="text-black">Select Plan B</option>
-                                    {blueprints?.map((b) => (
+                                    {blueprints?.filter((b) => b.id.toString() !== selectedBlueprintIdA).map((b) => (
                                         <option key={b.id} value={b.id} className="text-black bg-white">
                                             {b.name}
                                         </option>
@@ -358,7 +394,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                 {costsB ? (
                                     <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="flex items-baseline gap-1.5 mb-6">
-                                            <span className="text-4xl font-bold text-white tracking-tight">€{costsB.total.toFixed(2)}</span>
+                                            <span className="text-4xl font-bold tracking-tight">€{costsB.total.toFixed(2)}</span>
                                         </div>
                                         <div className="space-y-3">
                                             <div className="flex justify-between items-center text-sm p-3 rounded-lg bg-slate-50 border border-slate-100">
