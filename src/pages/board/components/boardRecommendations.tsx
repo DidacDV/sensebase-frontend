@@ -15,6 +15,15 @@ interface BoardRecommendationsProps {
     boardId: string;
 }
 
+/** Green palette from boardContext */
+const BOARD_COLORS = {
+  grid: '#10B981',   // emerald green
+  local: '#22C55E',  // lime green  
+  all: '#34D399',    // light green
+  mixed: '#059669',  // darker green
+  it: '#047857',     // forest green
+};
+
 const typeStyles: Record<Insight['type'] | 'neutral' | 'anomaly', { 
     label: string; 
     color: string; 
@@ -25,25 +34,25 @@ const typeStyles: Record<Insight['type'] | 'neutral' | 'anomaly', {
 }> = {
     alert: {
         label: 'Prediction',
-        color: 'text-purple-700',
-        bg: 'bg-purple-50 border-purple-200',
-        iconBg: 'bg-purple-100',
+        color: 'text-emerald-700',
+        bg: 'bg-emerald-50 border-emerald-200',
+        iconBg: 'bg-emerald-100',
         icon: 'mdi:crystal-ball',
         actionLabel: 'View forecast'
     },
     tip: {
         label: 'Recommendation',
-        color: 'text-emerald-700',
-        bg: 'bg-emerald-50 border-emerald-200',
-        iconBg: 'bg-emerald-100',
+        color: 'text-green-700',
+        bg: 'bg-green-50 border-green-200',
+        iconBg: 'bg-green-100',
         icon: 'mdi:lightbulb-on',
         actionLabel: 'Apply tip'
     },
     stat: {
         label: 'Key metric',
-        color: 'text-sky-700',
-        bg: 'bg-sky-50 border-sky-200',
-        iconBg: 'bg-sky-100',
+        color: 'text-teal-700',
+        bg: 'bg-teal-50 border-teal-200',
+        iconBg: 'bg-teal-100',
         icon: 'mdi:chart-line',
         actionLabel: 'View details'
     },
@@ -377,38 +386,37 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
     };
 
     return (
-        <div className="h-full flex flex-col gap-6 pb-8">
+        <div className="h-full flex flex-col gap-4 pb-6">
             {/* Header resumen */}
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-sm border border-gray-100 p-8">
-                <div className="flex items-start justify-between gap-6">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-sm border border-gray-100 p-3">
+                <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-3">Energy Optimization Recommendations</h2>
-                        <p className="text-base text-gray-600 max-w-3xl leading-relaxed">
-                            Intelligent analysis based on your consumption patterns. These actions can help you 
-                            reduce costs, improve efficiency and optimize your energy operation.
+                        <h2 className="text-xl font-bold mb-1" style={{ color: BOARD_COLORS.local }}>Energy Optimization Recommendations</h2>
+                        <p className="text-xs text-gray-600 max-w-2xl leading-relaxed">
+                            Intelligent analysis based on your consumption patterns. These actions can help you reduce costs and improve efficiency.
                         </p>
                     </div>
-                    <div className="shrink-0 bg-white rounded-2xl border border-gray-200 px-6 py-4 text-center shadow-sm">
-                        <div className="text-3xl font-bold text-slate-900">{total}</div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wide mt-1">Available</div>
+                    <div className="shrink-0 bg-white rounded-lg border border-gray-200 px-3 py-2 text-center shadow-sm">
+                        <div className="text-xl font-bold" style={{ color: BOARD_COLORS.grid }}>{total}</div>
+                        <div className="text-xs text-gray-500 uppercase tracking-wide mt-0.5">Available</div>
                     </div>
                 </div>
             </div>
 
             {/* Layout de dos columnas */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
                 {/* Columna izquierda: Catálogo de recomendaciones */}
-                <div className="flex flex-col gap-4">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Icon icon="mdi:lightbulb-multiple" className="text-2xl text-emerald-600" />
-                            <h3 className="text-xl font-bold text-slate-900">Full Catalog</h3>
+                <div className="flex flex-col gap-3">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
+                        <div className="flex items-center gap-2">
+                            <Icon icon="mdi:lightbulb-multiple" className="text-xl" style={{ color: BOARD_COLORS.grid }} />
+                            <h3 className="text-lg font-bold text-slate-900">Full Catalog</h3>
                         </div>
                     </div>
 
                     {/* Carrusel de recomendaciones */}
-                    <div className="flex flex-col gap-4">
-                        <div className="relative overflow-hidden" style={{ minHeight: '550px' }}>
+                    <div className="flex flex-col gap-3">
+                        <div className="relative overflow-hidden" style={{ minHeight: '450px' }}>
                             <AnimatePresence initial={false} custom={direction} mode="wait">
                                 <motion.div
                                     key={activeIndex}
@@ -426,25 +434,25 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                     {(() => {
                                         const style = typeStyles[current.type] ?? typeStyles.neutral;
                                         return (
-                                            <div className={`h-full rounded-3xl border-2 ${style.bg} shadow-xl overflow-hidden`}>
+                                            <div className={`h-full rounded-2xl border-2 ${style.bg} shadow-lg overflow-hidden`}>
                                                 <div className="h-full flex flex-col">
                                                     {/* Header de la tarjeta */}
-                                                    <div className="bg-white/50 backdrop-blur-sm border-b border-gray-200/50 px-10 py-6">
-                                                        <div className="flex items-start justify-between gap-6">
-                                                            <div className="flex items-start gap-5">
-                                                                <div className={`shrink-0 w-16 h-16 rounded-2xl ${style.iconBg} flex items-center justify-center shadow-sm`}>
-                                                                    <Icon icon={style.icon} className={`text-4xl ${style.color}`} />
+                                                    <div className="bg-white/50 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4">
+                                                        <div className="flex items-start justify-between gap-4">
+                                                            <div className="flex items-start gap-3">
+                                                                <div className={`shrink-0 w-12 h-12 rounded-xl ${style.iconBg} flex items-center justify-center shadow-sm`}>
+                                                                    <Icon icon={style.icon} className={`text-2xl ${style.color}`} />
                                                                 </div>
                                                                 <div>
-                                                                    <div className="flex items-center gap-3 mb-2">
-                                                                        <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${style.color} bg-white shadow-sm`}>
+                                                                    <div className="flex items-center gap-2 mb-1">
+                                                                        <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${style.color} bg-white shadow-sm`}>
                                                                             {style.label}
                                                                         </span>
                                                                         <span className="text-xs text-gray-500">
                                                                             {activeIndex + 1} of {total}
                                                                         </span>
                                                                     </div>
-                                                                    <h3 className="text-2xl font-bold text-slate-900 leading-tight mb-2">
+                                                                    <h3 className="text-xl font-bold text-slate-900 leading-tight mb-1">
                                                                         {current.title}
                                                                     </h3>
                                                                     {current.subtitle && (
@@ -458,17 +466,17 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                     </div>
 
                                                     {/* Contenido de la tarjeta */}
-                                                    <div className="flex-1 px-10 py-8 flex flex-col justify-between overflow-y-auto">
+                                                    <div className="flex-1 px-6 py-5 flex flex-col justify-between overflow-y-auto">
                                                         <div>
-                                                            <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                                                            <p className="text-sm text-slate-700 leading-relaxed mb-4">
                                                                 {current.briefDescription}
                                                             </p>
 
                                                         {/* Sección de impacto/métricas según tipo */}
                                                         {current.type === 'alert' && (
-                                                            <div className="bg-white/70 rounded-2xl border border-purple-200 p-6 mb-6">
-                                                                <div className="flex items-center gap-3 mb-3">
-                                                                    <Icon icon="mdi:trending-up" className="text-xl text-purple-600" />
+                                                            <div className="bg-white/70 rounded-xl border border-emerald-200 p-4 mb-4">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <Icon icon="mdi:trending-up" className="text-lg" style={{ color: BOARD_COLORS.grid }} />
                                                                     <h4 className="font-semibold text-slate-900">Future forecast</h4>
                                                                 </div>
                                                                 <p className="text-sm text-gray-700">
@@ -476,9 +484,9 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                                 </p>
                                                             </div>
                                                         )}                                                            {current.type === 'tip' && (
-                                                                <div className="bg-white/70 rounded-2xl border border-emerald-200 p-6 mb-6">
-                                                                    <div className="flex items-center gap-3 mb-3">
-                                                                        <Icon icon="mdi:star-shooting" className="text-xl text-emerald-600" />
+                                                                <div className="bg-white/70 rounded-xl border border-green-200 p-4 mb-4">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <Icon icon="mdi:star-shooting" className="text-lg" style={{ color: BOARD_COLORS.local }} />
                                                                         <h4 className="font-semibold text-slate-900">Expected benefits</h4>
                                                                     </div>
                                                                     <ul className="space-y-2 text-sm text-gray-700">
@@ -499,9 +507,9 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                             )}
 
                                                             {current.type === 'stat' && (
-                                                                <div className="bg-white/70 rounded-2xl border border-sky-200 p-6 mb-6">
-                                                                    <div className="flex items-center gap-3 mb-3">
-                                                                        <Icon icon="mdi:trending-up" className="text-xl text-sky-600" />
+                                                                <div className="bg-white/70 rounded-xl border border-teal-200 p-4 mb-4">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <Icon icon="mdi:trending-up" className="text-lg" style={{ color: BOARD_COLORS.mixed }} />
                                                                         <h4 className="font-semibold text-slate-900">Data context</h4>
                                                                     </div>
                                                                     <p className="text-sm text-gray-700">
@@ -513,18 +521,19 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                         </div>
 
                                                         {/* Botones de acción */}
-                                                        <div className="flex items-center gap-4">
+                                                        <div className="flex items-center gap-3">
                                                             <button
                                                                 type="button"
                                                                 disabled={isRecommendationSaved(current)}
-                                                                className={`flex-1 px-6 py-3.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                                                                className={`flex-1 px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
                                                                     isRecommendationSaved(current)
                                                                         ? 'text-gray-400 bg-gray-100 border-2 border-gray-200 cursor-not-allowed'
-                                                                        : 'text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-xl'
+                                                                        : 'text-white hover:shadow-lg'
                                                                 }`}
+                                                                style={!isRecommendationSaved(current) ? { backgroundColor: BOARD_COLORS.grid } : {}}
                                                                 onClick={() => saveRecommendation(current)}
                                                             >
-                                                                <Icon icon={isRecommendationSaved(current) ? 'mdi:bookmark-check' : 'mdi:bookmark-plus'} className="text-xl" />
+                                                                <Icon icon={isRecommendationSaved(current) ? 'mdi:bookmark-check' : 'mdi:bookmark-plus'} className="text-lg" />
                                                                 {isRecommendationSaved(current) ? 'Saved' : 'Save to my plan'}
                                                             </button>
                                                         </div>
@@ -542,10 +551,11 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                             <button
                                 type="button"
                                 onClick={goPrev}
-                                className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-gray-300 bg-white text-slate-700 hover:bg-gray-50 hover:border-slate-900 transition-all shadow-md hover:shadow-lg"
+                                className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-gray-300 bg-white text-slate-700 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md"
+                                style={{ borderColor: BOARD_COLORS.grid }}
                                 aria-label="Previous recommendation"
                             >
-                                <span className="text-2xl">‹</span>
+                                <span className="text-xl">‹</span>
                             </button>
 
                             {/* Indicadores del carrusel */}
@@ -574,25 +584,26 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                             <button
                                 type="button"
                                 onClick={goNext}
-                                className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-gray-300 bg-white text-slate-700 hover:bg-gray-50 hover:border-slate-900 transition-all shadow-md hover:shadow-lg"
+                                className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-gray-300 bg-white text-slate-700 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md"
+                                style={{ borderColor: BOARD_COLORS.grid }}
                                 aria-label="Next recommendation"
                             >
-                                <span className="text-2xl">›</span>
+                                <span className="text-xl">›</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Columna derecha: Plan de acción + Anomalías */}
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     {/* Plan de acción */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                                <Icon icon="mdi:clipboard-check" className="text-2xl text-slate-900" />
-                                <h3 className="text-xl font-bold text-slate-900">Action Plan</h3>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <Icon icon="mdi:clipboard-check" className="text-xl" style={{ color: BOARD_COLORS.mixed }} />
+                                <h3 className="text-lg font-bold text-slate-900">Action Plan</h3>
                                 {savedRecommendations.length > 0 && (
-                                    <span className="px-3 py-1 text-xs rounded-full bg-slate-900 text-white font-bold">
+                                    <span className="px-2 py-0.5 text-xs rounded-full text-white font-bold" style={{ backgroundColor: BOARD_COLORS.it }}>
                                         {savedRecommendations.length}
                                     </span>
                                 )}
@@ -685,30 +696,30 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
 
                     {/* Anomalías detectadas */}
                     {anomalies.length > 0 && (
-                        <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 p-6">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-                                    <Icon icon="mdi:alert-octagon" className="text-2xl text-red-600" />
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                    <Icon icon="mdi:alert-octagon" className="text-xl text-red-600" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-900">Detected Anomalies</h3>
-                                    <p className="text-sm text-gray-600">{anomalies.length} unusual patterns require attention</p>
+                                    <h3 className="text-lg font-bold text-slate-900">Detected Anomalies</h3>
+                                    <p className="text-xs text-gray-600">{anomalies.length} unusual patterns require attention</p>
                                 </div>
                             </div>
                             
-                            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                                 {anomalies.map((anomaly, idx) => {
                                     const style = severityStyles[anomaly.severity] || severityStyles.medium;
                                     const isSaved = isAnomalySaved(anomaly);
                                     return (
-                                        <div key={idx} className={`${style.bg} border-2 ${style.border} rounded-2xl p-4 hover:shadow-md transition-shadow`}>
-                                            <div className="flex items-start gap-3">
-                                                <div className={`shrink-0 w-10 h-10 rounded-lg ${style.iconBg} flex items-center justify-center`}>
-                                                    <Icon icon={style.icon} className={`text-xl ${style.text}`} />
+                                        <div key={idx} className={`${style.bg} ${style.border} rounded-lg p-3 hover:shadow-sm transition-shadow border`}>
+                                            <div className="flex items-start gap-2">
+                                                <div className={`shrink-0 w-8 h-8 rounded-md ${style.iconBg} flex items-center justify-center`}>
+                                                    <Icon icon={style.icon} className={`text-lg ${style.text}`} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-1">
-                                                        <h4 className={`font-bold ${style.text} text-sm`}>{anomaly.title}</h4>
+                                                        <h4 className={`font-semibold ${style.text} text-sm`}>{anomaly.title}</h4>
                                                         <span className={`text-xs px-2 py-0.5 rounded-full ${style.iconBg} ${style.text} font-bold uppercase`}>
                                                             {anomaly.severity}
                                                         </span>
@@ -726,14 +737,14 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                         <button
                                                             onClick={() => saveAnomaly(anomaly)}
                                                             disabled={isSaved}
-                                                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                                                            className={`px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1 ${
                                                                 isSaved
                                                                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                                                    : 'bg-white hover:bg-gray-50 text-red-700 hover:shadow-md border border-red-300'
+                                                                    : 'bg-white hover:bg-gray-50 text-red-700 hover:shadow-sm border border-red-300'
                                                             }`}
                                                         >
                                                             <Icon icon={isSaved ? "mdi:check-circle" : "mdi:clipboard-plus"} className="text-sm" />
-                                                            {isSaved ? 'Saved' : 'Save to my plan'}
+                                                            {isSaved ? 'Saved' : 'Save'}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -753,27 +764,27 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                     <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col h-full">
                             {/* Header */}
-                            <div className="bg-gradient-to-br from-slate-900 to-slate-700 px-8 py-6 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <Icon icon="mdi:clipboard-check" className="text-3xl text-white" />
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-white">Action Plan Detail</h3>
-                                        <p className="text-sm text-slate-300">
-                                            {activeSavedIndex + 1} of {savedRecommendations.length}
-                                        </p>
+                            <div className="bg-gradient-to-br from-slate-900 to-slate-700 px-6 py-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <Icon icon="mdi:clipboard-check" className="text-2xl text-white" />
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white">Action Plan Detail</h3>
+                                                <p className="text-xs text-slate-300">
+                                                    {activeSavedIndex + 1} of {savedRecommendations.length}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setViewMode('all')}
+                                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                                        >
+                                            <Icon icon="mdi:close" className="text-xl text-white" />
+                                        </button>
                                     </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setViewMode('all')}
-                                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                                >
-                                    <Icon icon="mdi:close" className="text-2xl text-white" />
-                                </button>
-                            </div>
 
                             {/* Content */}
-                            <div className="flex-1 overflow-y-auto p-8">
+                            <div className="flex-1 overflow-y-auto p-6">
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={activeSavedIndex}
@@ -783,60 +794,46 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                         transition={{ duration: 0.3 }}
                                     >
                                         {(() => {
-                                            console.log('=== MODAL RENDER DEBUG ===');
-                                            console.log('viewMode:', viewMode);
-                                            console.log('savedRecommendations:', savedRecommendations);
-                                            console.log('activeSavedIndex:', activeSavedIndex);
-                                            console.log('savedRecommendations.length:', savedRecommendations.length);
-                                            
                                             const currentSaved = savedRecommendations[activeSavedIndex];
-                                            
+
                                             if (!currentSaved) {
-                                                console.log('❌ No currentSaved found - activeSavedIndex might be out of bounds');
                                                 return null;
                                             }
-                                            
-                                            console.log('✅ Current saved item:', currentSaved);
-                                            console.log('source_type:', currentSaved.source_type);
-                                            console.log('anomaly_type:', currentSaved.anomaly_type);
-                                            console.log('anomaly_severity:', currentSaved.anomaly_severity);
-                                            console.log('anomaly_value:', currentSaved.anomaly_value);
-                                            console.log('anomaly_timestamp:', currentSaved.anomaly_timestamp);
-                                            
+
                                             const style = getStyleForSavedRecommendation(currentSaved);
                                             return (
                                                 <div className="space-y-6">
                                                     {/* Header de recomendación */}
-                                                    <div className={`${style.bg} border-2 rounded-2xl p-6`}>
-                                                        <div className="flex items-start gap-4">
-                                                            <div className={`shrink-0 w-16 h-16 rounded-2xl ${style.iconBg} flex items-center justify-center shadow-sm`}>
-                                                                <Icon icon={style.icon} className={`text-3xl ${style.color}`} />
+                                                    <div className={`${style.bg} border-2 rounded-xl p-4`}>
+                                                        <div className="flex items-start gap-3">
+                                                            <div className={`shrink-0 w-12 h-12 rounded-lg ${style.iconBg} flex items-center justify-center shadow-sm`}>
+                                                                <Icon icon={style.icon} className={`text-2xl ${style.color}`} />
                                                             </div>
                                                             <div className="flex-1">
-                                                                <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${style.color} bg-white shadow-sm inline-block mb-2`}>
+                                                                <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${style.color} bg-white shadow-sm inline-block mb-1`}>
                                                                     {style.label}
                                                                 </span>
-                                                                <h4 className="text-2xl font-bold text-slate-900 mb-2">
+                                                                <h4 className="text-xl font-bold text-slate-900 mb-1">
                                                                     {currentSaved.title}
                                                                 </h4>
-                                                                <p className="text-base text-slate-700 leading-relaxed">
+                                                                <p className="text-sm text-slate-700 leading-relaxed">
                                                                     {currentSaved.description}
                                                                 </p>
                                                             </div>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => removeSavedRecommendation(currentSaved.id)}
-                                                                className="shrink-0 px-4 py-2 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded-xl hover:bg-red-50 transition-colors flex items-center gap-2"
+                                                                className="shrink-0 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
                                                             >
-                                                                <Icon icon="mdi:trash-can" className="text-lg" />
+                                                                <Icon icon="mdi:trash-can" className="text-base" />
                                                                 Delete
                                                             </button>
                                                         </div>
                                                     </div>
 
                                                     {/* Métricas profesionales */}
-                                                    <div className="grid grid-cols-4 gap-4">
-                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                                                    <div className="grid grid-cols-4 gap-3">
+                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3">
                                                             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                                                                 <Icon icon="mdi:flag-variant" className="text-base" />
                                                                 Priority
@@ -844,7 +841,7 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                             <select
                                                                 value={currentSaved.priority}
                                                                 onChange={(e) => updatePriority(currentSaved.id, e.target.value as 'high' | 'medium' | 'low')}
-                                                                className="w-full px-3 py-2 text-sm font-semibold border-0 rounded-lg focus:ring-2 focus:ring-slate-900 cursor-pointer bg-white"
+                                                                className="w-full px-2 py-1.5 text-sm font-semibold border-0 rounded-lg focus:ring-2 focus:ring-slate-900 cursor-pointer bg-white"
                                                             >
                                                                 <option value="high">▲ High</option>
                                                                 <option value="medium">■ Medium</option>
@@ -852,7 +849,7 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                             </select>
                                                         </div>
 
-                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3">
                                                             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                                                                 <Icon icon="mdi:progress-check" className="text-base" />
                                                                 Status
@@ -860,7 +857,7 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                             <select
                                                                 value={currentSaved.status}
                                                                 onChange={(e) => updateStatus(currentSaved.id, e.target.value as any)}
-                                                                className="w-full px-3 py-2 text-sm font-semibold border-0 rounded-lg focus:ring-2 focus:ring-slate-900 cursor-pointer bg-white"
+                                                                className="w-full px-2 py-1.5 text-sm font-semibold border-0 rounded-lg focus:ring-2 focus:ring-slate-900 cursor-pointer bg-white"
                                                             >
                                                                 <option value="pending">○ Pending</option>
                                                                 <option value="in_progress">◐ In progress</option>
@@ -869,7 +866,7 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                             </select>
                                                         </div>
 
-                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3">
                                                             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                                                                 <Icon icon="mdi:calendar-clock" className="text-base" />
                                                                 Deadline
@@ -878,11 +875,11 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                                 type="date"
                                                                 value={currentSaved.deadline}
                                                                 onChange={(e) => updateDeadline(currentSaved.id, e.target.value)}
-                                                                className="w-full px-3 py-2 text-sm border-0 rounded-lg focus:ring-2 focus:ring-slate-900 bg-white"
+                                                                className="w-full px-2 py-1.5 text-sm border-0 rounded-lg focus:ring-2 focus:ring-slate-900 bg-white"
                                                             />
                                                         </div>
 
-                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                                                        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3">
                                                             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                                                                 <Icon icon="mdi:account-tie" className="text-base" />
                                                                 Responsible
@@ -892,31 +889,31 @@ const BoardRecommendations = ({ context, boardId }: BoardRecommendationsProps) =
                                                                 value={currentSaved.responsible}
                                                                 onChange={(e) => updateResponsible(currentSaved.id, e.target.value)}
                                                                 placeholder="Assign..."
-                                                                className="w-full px-3 py-2 text-sm border-0 rounded-lg focus:ring-2 focus:ring-slate-900 bg-white"
+                                                                className="w-full px-2 py-1.5 text-sm border-0 rounded-lg focus:ring-2 focus:ring-slate-900 bg-white"
                                                             />
                                                         </div>
                                                     </div>
 
                                                     {/* Detalles de anomalía (solo si es una anomalía) */}
                                                     {/* Plan de implementación */}
-                                                    <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl border-2 border-slate-200 p-6">
-                                                        <div className="flex items-center gap-3 mb-4">
-                                                            <Icon icon="mdi:clipboard-text" className="text-2xl text-slate-700" />
-                                                            <h4 className="font-semibold text-slate-900 text-lg">Implementation Plan</h4>
+                                                    <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl border-2 border-slate-200 p-4">
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <Icon icon="mdi:clipboard-text" className="text-xl text-slate-700" />
+                                                            <h4 className="font-semibold text-slate-900 text-base">Implementation Plan</h4>
                                                         </div>
 
-                                                        <div className="space-y-4">
+                                                        <div className="space-y-3">
                                                             {/* Notas */}
                                                             <div>
-                                                                <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                                                                    <Icon icon="mdi:note-text" className="text-base" />
+                                                                <label className="text-sm font-medium text-gray-700 mb-1 block flex items-center gap-2">
+                                                                    <Icon icon="mdi:note-text" className="text-sm" />
                                                                     Strategic notes
                                                                 </label>
                                                                 <textarea
                                                                     value={currentSaved.note}
                                                                     onChange={(e) => updateNote(currentSaved.id, e.target.value)}
                                                                     placeholder="Context, suppliers, stakeholders involved, identified risks..."
-                                                                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none bg-white"
+                                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none bg-white"
                                                                     rows={3}
                                                                 />
                                                             </div>

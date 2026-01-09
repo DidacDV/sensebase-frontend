@@ -53,8 +53,8 @@ export const mockAnomalies: Anomaly[] = [
     {
         id: 'anom-1',
         type: 'ANOMALY_FIX',
-        title: 'Pico anómalo',
-        description: '14:30h - 2.4 kW sobre media',
+        title: 'Anomalous Peak',
+        description: '14:30 - 2.4 kW above average',
         severity: 'medium',
         timeRange: '14:00-15:00',
         impact: 2.4
@@ -62,8 +62,8 @@ export const mockAnomalies: Anomaly[] = [
     {
         id: 'anom-2',
         type: 'ANOMALY_FIX',
-        title: 'Consumo nocturno',
-        description: '02:00-05:00h - Elevado >180%',
+        title: 'Nighttime High Consumption',
+        description: '02:00-05:00 - Elevated >180%',
         severity: 'high',
         timeRange: '02:00-05:00',
         impact: 3.8
@@ -74,9 +74,9 @@ export const mockRecommendations: Recommendation[] = [
     {
         id: 'rec-1',
         type: 'LOWER_POWER',
-        title: 'Reducir Potencia P1',
-        description: 'Reducir P1 de 5.0kW a 3.5kW',
-        icon: '📉',
+        title: 'Lower Power P1',
+        description: 'Reduce P1 from 5.0 kW to 3.5 kW',
+        icon: '',
         parameters: {
             period: 'p1',
             newValue: 3.5  // This will reduce fixed power costs
@@ -86,9 +86,9 @@ export const mockRecommendations: Recommendation[] = [
     {
         id: 'rec-2',
         type: 'LOWER_POWER',
-        title: 'Reducir Potencia P2',
-        description: 'Reducir P2 de 4.0kW a 2.5kW',
-        icon: '📉',
+        title: 'Lower Power P2',
+        description: 'Reduce P2 from 4.0 kW to 2.5 kW',
+        icon: '',
         parameters: {
             period: 'p2',
             newValue: 2.5  // Additional power reduction
@@ -98,9 +98,9 @@ export const mockRecommendations: Recommendation[] = [
     {
         id: 'rec-3',
         type: 'SHIFT_CONSUMPTION',
-        title: 'Desplazar consumo',
-        description: 'Mover carga a horas valle',
-        icon: '⚡',
+        title: 'Shift Consumption',
+        description: 'Move load to off-peak hours',
+        icon: '',
         parameters: {
             targetPeriod: 'valley'
         },
@@ -111,22 +111,22 @@ export const mockRecommendations: Recommendation[] = [
 export const mockPatterns: Pattern[] = [
     {
         id: 'pat-1',
-        title: 'Mañana',
-        timeRange: '08:00-12:00h',
+        title: 'Morning',
+        timeRange: '08:00-12:00',
         value: '3.2 kW',
         trend: 'up'
     },
     {
         id: 'pat-2',
-        title: 'Mediodía',
-        timeRange: '14:00-16:00h',
+        title: 'Midday',
+        timeRange: '14:00-16:00',
         value: '1.8 kW',
         trend: 'down'
     },
     {
         id: 'pat-3',
-        title: 'Tarde',
-        timeRange: '19:00-21:00h',
+        title: 'Evening',
+        timeRange: '19:00-21:00',
         value: '3.8 kW',
         trend: 'up'
     }

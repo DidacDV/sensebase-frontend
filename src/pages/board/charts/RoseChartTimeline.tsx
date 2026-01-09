@@ -29,30 +29,31 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
           data: data.timeline,
           left: '5%',
           right: '5%',
-          lineStyle: { color: '#ccc' },
-          label: { color: '#666' },
-          itemStyle: { color: '#999' },
-          controlStyle: { color: '#1A3D63', borderColor: '#1A3D63' },
-          checkpointStyle: { color: '#3b82f6', borderColor: '#fff' }
+          bottom: -10,
+          lineStyle: { color: '#D1D5DB' },
+          label: { color: '#4B5563' },
+          itemStyle: { color: '#9CA3AF' },
+          controlStyle: { color: '#10B981', borderColor: '#10B981' },
+          checkpointStyle: { color: '#22C55E', borderColor: '#111827' }
         },
         title: {
           text: `Energy Mix - ${data.granularity.charAt(0).toUpperCase() + data.granularity.slice(1)}`,
-          top: 10,
+          top: 0,
           left: 'center',
-          textStyle: { color: '#1A3D63', fontSize: 14, fontWeight: 'bold'}
+          textStyle: { color: '#111827', fontSize: 14, fontWeight: 'bold'}
         },
         tooltip: {
           trigger: 'item',
           formatter: `{b}: {c} ${data.unit} ({d}%)`,
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          borderColor: '#ccc',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderColor: '#D1D5DB',
           borderWidth: 1,
-          textStyle: { color: '#333' }
+          textStyle: { color: '#111827' }
         },
         legend: {
             top: -20,
             type: 'scroll',
-            textStyle: { color: '#0F3DCC' }
+            textStyle: { color: '#374151' }
         },
         calculable: true,
         series: [
@@ -64,20 +65,26 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
             center: ['50%', '45%'], 
             itemStyle: {
               borderRadius: 5,
-              borderColor: '#fff',
-              borderWidth: 1
+              borderColor: '#FFFFFF',
+              borderWidth: 2,
+              opacity: 0.75,
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.1)'
             },
             label: {
               show: true,
-              formatter: '{b}'
+              formatter: '{b}',
+              color: '#111827'
             },
-              color: [
-                '#1D4ED8', // Grid
-                '#6D28D9', // Local
-                '#06B6D4', // All/Total
-                '#4F46E5', // Mixed
-                '#0F3DCC', // IT
-              ]
+            color: [
+              '#10B981', // Grid - emerald
+              '#6B7280', // Local - medium gray
+              '#22C55E', // All/Total - green
+              '#9CA3AF', // Mixed - light gray
+              '#059669', // IT - darker emerald
+              '#D1D5DB', // Additional - very light gray
+              '#047857', // Additional - forest green
+            ]
           }
         ]
       },
@@ -86,7 +93,7 @@ const RoseChartTimeline: React.FC<RoseChartTimelineProps> = ({ data, height = '5
   }, [data]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 h-full">
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 h-full border border-gray-200">
       <ReactECharts 
         option={option} 
         style={{ height: '100%', width: '100%', minHeight: height }} 

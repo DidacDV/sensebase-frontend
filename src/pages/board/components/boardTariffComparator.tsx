@@ -10,60 +10,46 @@ interface TariffComparatorProps {
 }
 
 const WinnerBadge = () => (
-    <motion.div
-        initial={{ scale: 0, rotate: -180, opacity: 0 }}
-        animate={{ scale: 1, rotate: 0, opacity: 1 }}
-        transition={{
-            type: "spring",
-            stiffness: 260,
-            damping: 20
-        }}
-        className="absolute top-4 right-4 z-20 pointer-events-none"
-    >
-        <motion.div
-            animate={{
-                scale: [1, 1.2, 1],
-                filter: [
-                    "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07))",
-                    "drop-shadow(0 0 15px rgba(250, 204, 21, 0.6))",
-                    "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07))"
-                ]
-            }}
-            transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-            }}
-        >
+    <div className="absolute top-4 right-4 z-20 pointer-events-none">
+        <div className="w-8 h-8">
             <Star className="w-8 h-8 fill-yellow-400 text-yellow-500" />
-        </motion.div>
-    </motion.div>
+        </div>
+    </div>
 );
 
+/** BOARD_COLORS palette (match Context & Recommendations) */
+const BOARD_COLORS = {
+        grid: '#10B981',   // emerald green
+        local: '#22C55E',  // lime green
+        all: '#34D399',    // light green
+        mixed: '#059669',  // darker green
+        it: '#047857',     // forest green
+};
+
 const THEME = {
-  planA: {
-    base: '#1D4ED8',   
-    dark: '#1E40AF',  
-    bg: '#EFF6FF',    
-    border: '#BFDBFE' 
-  },
-  planB: {
-    base: '#6D28D9',
-    dark: '#5B21B6', 
-    bg: '#F5F3FF',   
-    border: '#DDD6FE'  
-  },
-  success: {
-    base: '#14B8A6',
-    dark: '#0F766E',
-    bg: '#F0FDFA',  
-    border: '#CCFBF1' 
-  },
-  neutral: {
-    text: '#334155',   
-    subtext: '#64748B',
-    border: '#E2E8F0'   
-  }
+    planA: {
+        base: BOARD_COLORS.all,
+        dark: BOARD_COLORS.it,
+        bg: '#ECFDF5',
+        border: '#D1FAE5'
+    },
+    planB: {
+        base: BOARD_COLORS.local,
+        dark: BOARD_COLORS.mixed,
+        bg: '#F0FDF4',
+        border: '#DCFCE7'
+    },
+    success: {
+        base: BOARD_COLORS.grid,
+        dark: BOARD_COLORS.it,
+        bg: '#F0FDFA',
+        border: '#CCFBF1'
+    },
+    neutral: {
+        text: '#334155',
+        subtext: '#64748B',
+        border: '#E2E8F0'
+    }
 };
 
 const getPeriodForHour = (date: Date): string => {
@@ -193,7 +179,8 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
         const categories = ['Fixed Power', 'Fixed Cargos', 'Variable Energy', 'Variable Cargos', 'Other', 'Tax'];
         
         return {
-            grid: { top: 40, right: 20, bottom: 30, left: 50, containLabel: true },
+            // increase bottom spacing so legend doesn't overlap bars
+            grid: { top: 40, right: 20, bottom: 110, left: 50, containLabel: true },
             tooltip: { 
                 trigger: 'axis', 
                 backgroundColor: '#fff',
@@ -203,7 +190,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
             },
             legend: { 
                 data: [costsA.blueprint.name, costsB.blueprint.name],
-                bottom: 0,
+                bottom: 12,
                 icon: 'circle',
                 itemGap: 24,
                 textStyle: { color: '#64748B' }
@@ -230,7 +217,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                         color: {
                             type: 'linear',
                             x: 0, y: 0, x2: 0, y2: 1,
-                            colorStops: [{ offset: 0, color: savings?.winnerId === selectedBlueprintIdA ? '#7DD3FC' : 'black' }, { offset: 1, color: savings?.winnerId === selectedBlueprintIdA ? '#7DD3FC' : 'black' }]
+                            colorStops: [{ offset: 0, color: savings?.winnerId === selectedBlueprintIdA ? BOARD_COLORS.all : '#94A3B8' }, { offset: 1, color: savings?.winnerId === selectedBlueprintIdA ? BOARD_COLORS.all : '#94A3B8' }]
                         },
                         borderRadius: [4, 4, 0, 0] 
                     },
@@ -243,7 +230,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                         color: {
                             type: 'linear',
                             x: 0, y: 0, x2: 0, y2: 1,
-                            colorStops: [{ offset: 0, color: savings?.winnerId === selectedBlueprintIdB ? '#2563EB' : 'black' }, { offset: 1, color: savings?.winnerId === selectedBlueprintIdB ? '#2563EB' : 'black' }]
+                            colorStops: [{ offset: 0, color: savings?.winnerId === selectedBlueprintIdB ? BOARD_COLORS.local : '#94A3B8' }, { offset: 1, color: savings?.winnerId === selectedBlueprintIdB ? BOARD_COLORS.local : '#94A3B8' }]
                         },
                         borderRadius: [4, 4, 0, 0] 
                     },
@@ -258,7 +245,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
             <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/50 p-6 text-center">
                 <div className="bg-white p-10 rounded-2xl shadow-sm border border-orange-100 max-w-md">
                     <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertTriangle className="text-blue-900 w-8 h-8" />
+                        <AlertTriangle className="text-emerald-700 w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3">No Consumption Data</h3>
                     <p className="text-gray-500 leading-relaxed text-sm">
@@ -270,6 +257,22 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
     }
 
     const isComparisonActive = Boolean(costsA && costsB);
+
+    // Panel background helpers: when there's no comparison selected both panels
+    // use the theme backgrounds, but make Baseline slightly darker so they differ.
+    const planABg = !isComparisonActive
+        ? THEME.planA.border
+        : (savings?.winnerId === selectedBlueprintIdA ? THEME.planA.bg : undefined);
+    const planAColor = !isComparisonActive
+        ? THEME.planA.dark
+        : (savings?.winnerId === selectedBlueprintIdA ? THEME.planA.dark : undefined);
+
+    const planBBg = !isComparisonActive
+        ? THEME.planB.bg
+        : (savings?.winnerId === selectedBlueprintIdB ? THEME.planB.bg : undefined);
+    const planBColor = !isComparisonActive
+        ? THEME.planB.dark
+        : (savings?.winnerId === selectedBlueprintIdB ? THEME.planB.dark : undefined);
 
     return (
         <div className="w-full h-full bg-slate-50/50 flex flex-col overflow-hidden font-sans">
@@ -311,13 +314,11 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
 
                         {/* Plan A Side */}
                         <div
-                        className={`p-8 relative transition-colors duration-300 ${
-                            !isComparisonActive
-                            ? 'bg-[#7DD3FC] text-white'
-                            : savings?.winnerId === selectedBlueprintIdA
-                                ? 'bg-[#7DD3FC] text-white'
-                                : 'bg-white text-slate-900'
-                        }`}
+                        className={`p-8 relative transition-colors duration-300`}
+                        style={{
+                            background: planABg,
+                            color: planAColor
+                        }}
                         >
                             {isComparisonActive && savings?.winnerId === selectedBlueprintIdA && (
                                 <WinnerBadge />
@@ -330,7 +331,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                 <select
                                     value={selectedBlueprintIdA}
                                     onChange={(e) => setSelectedBlueprintIdA(e.target.value)}
-                                    className="w-full text-lg font-medium text-slate-900 bg-transparent border-0 border-b focus:border-blue-600 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
+                                    className="w-full text-lg font-medium text-slate-900 bg-transparent border-0 border-b focus:border-emerald-500 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
                                 >
                                     <option value="">Select Plan A</option>
                                     {blueprints?.filter((b) => b.id.toString() !== selectedBlueprintIdB).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -362,13 +363,11 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
 
                         {/* Plan B Side */}
                         <div
-                        className={`p-8 relative transition-colors duration-300 ${
-                            !isComparisonActive
-                            ? 'bg-[#2563EB] text-white'
-                            : savings?.winnerId === selectedBlueprintIdB
-                                ? 'bg-[#2563EB] text-white'
-                                : 'bg-white text-slate-900'
-                        }`}
+                        className={`p-8 relative transition-colors duration-300`}
+                        style={{
+                            background: planBBg,
+                            color: planBColor
+                        }}
                         >
                             {isComparisonActive && savings?.winnerId === selectedBlueprintIdB && (
                                 <WinnerBadge />
@@ -381,7 +380,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                 <select
                                     value={selectedBlueprintIdB}
                                     onChange={(e) => setSelectedBlueprintIdB(e.target.value)}
-                                    className="w-full text-lg font-medium bg-transparent border-0 border-b border-gray-200 focus:border-violet-600 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
+                                    className="w-full text-lg font-medium bg-transparent border-0 border-b border-gray-200 focus:border-emerald-500 focus:ring-0 px-0 py-2 cursor-pointer hover:border-gray-300 transition-colors"
                                 >
                                     <option value="" className="text-black">Select Plan B</option>
                                     {blueprints?.filter((b) => b.id.toString() !== selectedBlueprintIdA).map((b) => (
@@ -408,7 +407,7 @@ const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorP
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="mt-12 text-center text-slate-300 text-sm py-8 border-2 border-dashed border-slate-100 rounded-lg">
+                                    <div className="mt-12 text-center text-current text-sm py-8 border-2 border-dashed border-slate-200 rounded-lg">
                                         Select a plan to view costs
                                     </div>
                                 )}

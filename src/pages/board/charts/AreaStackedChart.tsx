@@ -17,21 +17,21 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
 
   //should be pivcked from the board config
   const colorPalette: Record<string, [string, string]> = {
-    'ALL-No usage': ['#E0F2FE', '#7DD3FC'],        // very light sky
-    'ALL-Total': ['#06B6D4', '#0891B2'],           // cyan
-    'ALL-Lighting': ['#3B82F6', '#2563EB'],        // true blue
-    'ALL-IT': ['#6366F1', '#4F46E5'],              // indigo
-    'ALL-Mixed usages': ['#14B8A6', '#0F766E'],    // teal
+    'ALL-No usage': ['#E5E7EB', '#D1D5DB'],        // light gray
+    'ALL-Total': ['#10B981', '#059669'],           // emerald
+    'ALL-Lighting': ['#6B7280', '#4B5563'],        // medium gray
+    'ALL-IT': ['#047857', '#065F46'],              // darker emerald
+    'ALL-Mixed usages': ['#9CA3AF', '#6B7280'],    // light gray
 
-    'GRID-Total': ['#1D4ED8', '#1E40AF'],          // royal blue
-    'GRID-Lighting': ['#60A5FA', '#3B82F6'],       // light blue
-    'GRID-IT': ['#0B2F8A', '#082567'],              // navy
-    'GRID-Mixed usages': ['#38BDF8', '#0284C7'],   // sky blue
+    'GRID-Total': ['#10B981', '#059669'],          // emerald
+    'GRID-Lighting': ['#84CC16', '#65A30D'],       // lime green
+    'GRID-IT': ['#34D399', '#10B981'],             // light emerald
+    'GRID-Mixed usages': ['#A3A3A3', '#737373'],   // neutral gray
 
-    'LOCAL-Total': ['#6D28D9', '#5B21B6'],         // indigo
-    'LOCAL-Lighting': ['#8B5CF6', '#7C3AED'],      // violet-blue
-    'LOCAL-IT': ['#2563EB', '#1D4ED8'],             // blue
-    'LOCAL-Mixed usages': ['#A5B4FC', '#818CF8'],  // periwinkle
+    'LOCAL-Total': ['#22C55E', '#16A34A'],         // green
+    'LOCAL-Lighting': ['#D1D5DB', '#9CA3AF'],      // light gray
+    'LOCAL-IT': ['#059669', '#047857'],            // emerald-dark
+    'LOCAL-Mixed usages': ['#71717A', '#52525B'],  // zinc gray
   };
 
   const getGradientColor = (category: string, usageType: string): [string, string] => {
@@ -64,9 +64,10 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
           color: color1
         },
         areaStyle: {
-          opacity: 0.8,
+          opacity: 0.55,
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: color1 },
+            { offset: 0.5, color: `${color1}DD` },
             { offset: 1, color: color2 }
           ])
         },
@@ -85,7 +86,7 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
         text: `Energy Consumption - ${data.granularity.charAt(0).toUpperCase() + data.granularity.slice(1)}`,
         left: 'center',
         textStyle: {
-          color: '#1A3D63',
+          color: '#111827',
           fontSize: 18,
           fontWeight: 'bold'
         }
@@ -161,7 +162,7 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
         boundaryGap: false,
         data: data.xAxis,
         axisLabel: {
-          color: '#6B7280',
+          color: '#4B5563',
           rotate: data.xAxis.length > 20 ? 45 : 0
         },
         axisLine: {
@@ -179,7 +180,7 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
         },
         axisLabel: {
           formatter: '{value}',
-          color: '#6B7280'
+          color: '#4B5563'
         },
         axisLine: {
           lineStyle: {
@@ -227,7 +228,7 @@ const AreaStackedGradient: React.FC<AreaStackedGradientProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 border border-gray-200">
       <div ref={chartRef} style={{ width: '100%', height }} />
     </div>
   );
