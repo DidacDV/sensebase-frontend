@@ -9,6 +9,15 @@ import {
 } from "@src/types/costOptimizationModel.ts";
 import {useBoardTariffBlueprints, useOptimizeTariff} from "@src/services/tariffService.ts";
 
+/** BOARD_COLORS palette (match Context & Recommendations) */
+const BOARD_COLORS = {
+    grid: '#10B981',   // emerald green
+    local: '#22C55E',  // lime green
+    all: '#34D399',    // light green
+    mixed: '#059669',  // darker green
+    it: '#047857',     // forest green
+};
+
 interface CostOptimizationProps {
     boardId: string;
 }
@@ -86,7 +95,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
             {/* LEFT SIDEBAR - Parameters Panel */}
             <motion.div
                 variants={itemVariants as any}
-                className="w-80 bg-white rounded-lg shadow-md p-6 flex flex-col gap-4 overflow-y-auto"
+                className="w-72 bg-white rounded-lg shadow-md p-6 flex flex-col gap-4 overflow-y-auto"
             >
                 {/* Tariff Selector */}
                 <div className="flex items-center justify-between border-b pb-3">
@@ -115,7 +124,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                                     p6: 70
                                 }
                             }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         >
                             <option value="">Select a tariff...</option>
                             {blueprints?.map((tariff) => (
@@ -141,7 +150,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                                 <div className={`w-1 h-full rounded ${
                                     anomaly.severity === 'high' ? 'bg-red-500' :
                                         anomaly.severity === 'medium' ? 'bg-orange-500' :
-                                            'bg-blue-500'
+                                            'bg-emerald-500'
                                 }`}></div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800">{anomaly.title}</p>
@@ -169,14 +178,13 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                 <div>
                     <div className="flex items-center justify-between mb-3">
                         <h4 className="text-sm font-semibold text-gray-700">Recommendations</h4>
-                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-medium">
+                        <span className="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full font-medium">
                             {mockRecommendations.length} actions
                         </span>
                     </div>
                     <div className="space-y-2">
                         {mockRecommendations.map((rec) => (
                             <div key={rec.id} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
-                                <span className="text-lg">{rec.icon}</span>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800">{rec.title}</p>
                                     <p className="text-xs text-gray-600">{rec.description}</p>
@@ -213,8 +221,8 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                                 <div className="flex items-center gap-2">
                                     <span className={`${
                                         pattern.trend === 'up' ? 'text-green-500' :
-                                            pattern.trend === 'down' ? 'text-blue-500' :
-                                                'text-purple-500'
+                                            pattern.trend === 'down' ? 'text-emerald-500' :
+                                                'text-emerald-500'
                                     }`}>
                                         {pattern.trend === 'up' ? '↑' : pattern.trend === 'down' ? '↓' : '→'}
                                     </span>
@@ -225,8 +233,8 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                                 </div>
                                 <span className={`text-sm font-semibold ${
                                     pattern.trend === 'up' ? 'text-green-600' :
-                                        pattern.trend === 'down' ? 'text-blue-600' :
-                                            'text-purple-600'
+                                        pattern.trend === 'down' ? 'text-emerald-600' :
+                                            'text-emerald-500'
                                 }`}>{pattern.value}</span>
                             </div>
                         ))}
@@ -237,7 +245,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                 <button
                     onClick={handleOptimize}
                     disabled={!formState.tariffId || isOptimizing}
-                    className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                            className="w-full bg-emerald-600 text-white py-3 rounded-md font-semibold hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
                     {isOptimizing ? 'Optimizing...' : 'Optimize Cost'}
                 </button>
@@ -264,7 +272,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-sm text-gray-600">Current monthly cost</span>
                             </div>
-                            <div className="text-4xl font-bold text-red-500">
+                            <div className="text-4xl font-bold" style={{ color: BOARD_COLORS.mixed }}>
                                 {optimizationResult?.costAnalysis?.current?.totalMonthly?.toFixed(2) ?? '0.00'}
                                 <span className="text-2xl">€</span>
                             </div>
@@ -284,7 +292,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-sm text-gray-600">Optimized monthly cost</span>
                             </div>
-                            <div className="text-4xl font-bold text-green-500">
+                            <div className="text-4xl font-bold" style={{ color: BOARD_COLORS.grid }}>
                                 {optimizationResult?.costAnalysis?.optimized?.totalMonthly?.toFixed(2) ?? '0.00'}
                                 <span className="text-2xl">€</span>
                             </div>
@@ -303,7 +311,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-sm text-gray-600">Monthly Savings</span>
                             </div>
-                            <div className="text-3xl font-bold text-blue-600">
+                            <div className="text-3xl font-bold" style={{ color: BOARD_COLORS.grid }}>
                                 {optimizationResult?.costAnalysis?.savings?.monthlyAbsolute?.toFixed(2) ?? '0.00'}
                                 <span className="text-xl">€</span>
                             </div>
@@ -312,7 +320,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-sm text-gray-600">Yearly Savings</span>
                             </div>
-                            <div className="text-3xl font-bold text-blue-600">
+                            <div className="text-3xl font-bold" style={{ color: BOARD_COLORS.local }}>
                                 {optimizationResult?.costAnalysis?.savings?.yearlyAbsolute?.toFixed(2) ?? '0.00'}
                                 <span className="text-xl">€</span>
                             </div>
@@ -321,7 +329,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-sm text-gray-600">Reduction</span>
                             </div>
-                            <div className="text-3xl font-bold text-purple-600">
+                            <div className="text-3xl font-bold" style={{ color: BOARD_COLORS.all }}>
                                 {optimizationResult?.costAnalysis?.savings?.percentageReduction?.toFixed(1) ?? '0'}
                                 <span className="text-xl">%</span>
                             </div>
@@ -335,8 +343,8 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                     <div className="space-y-3">
                         {optimizationResult?.recommendationsApplied?.length > 0 ? (
                             optimizationResult.recommendationsApplied.map((rec: any, index: number) => (
-                                <div key={index} className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50/50 rounded-r">
-                                    <h4 className="font-semibold capitalize text-blue-900">
+                                <div key={index} className="border-l-4 border-emerald-500 pl-4 py-2 bg-emerald-50/50 rounded-r">
+                                    <h4 className="font-semibold capitalize" style={{ color: BOARD_COLORS.it }}>
                                         {rec.type?.replace(/_/g, ' ') || 'Action'}
                                     </h4>
                                     {rec.parameters && Object.keys(rec.parameters).length > 0 && (
@@ -375,14 +383,14 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                 </div>
 
                 {newBlueprintId && createdBlueprint && !isFetching && (
-                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-md p-6 border-2 border-green-300">
+                    <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg shadow-md p-6 border-2 border-emerald-300">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
                                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <h3 className="text-xl font-bold text-green-900">New Optimized Blueprint Created!</h3>
+                            <h3 className="text-xl font-bold" style={{ color: BOARD_COLORS.it }}>New Optimized Blueprint Created!</h3>
                         </div>
 
                         <div className="bg-white rounded-lg p-4 space-y-3">
@@ -401,7 +409,7 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
                             <div className="flex gap-4 pt-3 border-t">
                                 <button
                                     onClick={() => setFormState(prev => ({ ...prev, tariffId: newBlueprintId }))}
-                                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors"
+                                    className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-emerald-700 transition-colors"
                                 >
                                     Use This Blueprint
                                 </button>

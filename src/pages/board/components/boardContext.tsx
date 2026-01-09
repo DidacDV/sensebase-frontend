@@ -10,14 +10,18 @@ interface BoardContextProps {
 
 /** Board color system – aligned with charts */
 const BOARD_COLORS = {
-  grid: '#1D4ED8',   // Grid – royal blue
-  local: '#6D28D9',  // Local – indigo
-  all: '#06B6D4',    // All / Total – cyan
-  mixed: '#4F46E5',  // Mixed – blue-indigo
-  it: '#0F3DCC',     // IT – deep tech blue
+  grid: '#10B981',   // Grid – emerald green
+  local: '#22C55E',  // Local – lime green
+  all: '#34D399',    // All / Total – light green
+  mixed: '#059669',  // Mixed – darker green
+  it: '#047857',     // IT – forest green
 };
 
 const Context = ({ context }: BoardContextProps) => {
+  const hideScrollbarStyle = `
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  `;
   // helpers
   const getInsightType = (type: string): InfoCardType => {
     switch (type) {
@@ -77,7 +81,7 @@ const Context = ({ context }: BoardContextProps) => {
   };
 
   const bentoCardClass =
-    'bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-full flex flex-col';
+    'bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full flex flex-col';
 
   return (
     <motion.div
@@ -87,50 +91,46 @@ const Context = ({ context }: BoardContextProps) => {
       className="w-full pb-12"
     >
       {/* BENTO GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-auto">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-auto">
 
-        {/* SUMMARY */}
+        {/* SUMMARY - Minimal */}
         <motion.div
           variants={bentoItemVariants as any}
-          className="md:col-span-12 relative overflow-hidden bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
+          className="md:col-span-12 bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
         >
-          <div
-            className="absolute top-0 right-0 w-64 h-64 rounded-bl-full pointer-events-none"
-            style={{
-              background: `linear-gradient(135deg, ${BOARD_COLORS.all}22, transparent)`
-            }}
-          />
-          <div className="relative z-10">
-            <div className="mb-4">{getSentimentBadge(context.mainSummary.sentiment)}</div>
-            <h2 className="text-3xl font-bold mb-3" style={{ color: BOARD_COLORS.mixed }}>
-              {context.mainSummary.title}
-            </h2>
-            <p className="text-gray-600 text-lg max-w-5xl">
-              {context.mainSummary.content}
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h2 className="text-xl font-bold mb-1" style={{ color: BOARD_COLORS.local }}>
+                {context.mainSummary.title}
+              </h2>
+              <p className="text-gray-600 text-sm">
+                {context.mainSummary.content}
+              </p>
+            </div>
+            <div className="shrink-0">
+              {getSentimentBadge(context.mainSummary.sentiment)}
+            </div>
           </div>
         </motion.div>
 
-        {/* PRIMARY PERFORMANCE */}
+        {/* PRIMARY PERFORMANCE - Full Width */}
         <motion.div
           variants={bentoItemVariants as any}
-          className={`md:col-span-12 lg:col-span-8 ${bentoCardClass}`}
+          className="md:col-span-12 bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
         >
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-[#1A3D63] flex items-center gap-2">
-              <span
-                className="w-2 h-6 rounded-full"
-                style={{ backgroundColor: BOARD_COLORS.grid }}
-              />
-              Primary Performance
-            </h3>
+          <div className="flex items-center gap-2 mb-4">
+            <span
+              className="w-1.5 h-5 rounded-full"
+              style={{ backgroundColor: BOARD_COLORS.grid }}
+            />
+            <h3 className="text-lg font-semibold text-gray-900">Primary Performance</h3>
           </div>
-          <div className="flex-grow min-h-[350px]">
+          <div className="min-h-[300px]">
             {context.chart1?.data ? (
               <ChartRenderer
                 data={context.chart1}
                 granularity="daily"
-                height="350px"
+                height="300px"
               />
             ) : (
               <EmptyState icon="📊" />
@@ -138,89 +138,122 @@ const Context = ({ context }: BoardContextProps) => {
           </div>
         </motion.div>
 
-        {/* KEY INSIGHTS */}
+        {/* SECONDARY TRENDS & INSIGHTS ROW */}
+        {/* SECONDARY TRENDS + QUICK STATS - Left Column */}
         <motion.div
           variants={bentoItemVariants as any}
-          className={`md:col-span-12 lg:col-span-4 ${bentoCardClass} bg-gray-50/50 flex`}
+          className="md:col-span-12 lg:col-span-8 flex flex-col gap-4"
         >
-          <h3 className="text-lg font-bold text-[#1A3D63] mb-4 flex items-center gap-2">
-            <span
-              className="w-2 h-6 rounded-full"
-            />
-            Key Insights
-          </h3>
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar mx-auto">
-            {context.insights?.map((insight, i) => (
-              <InfoCard
-                key={i}
-                type={getInsightType(insight.type)}
-                title={insight.title}
-                description={insight.briefDescription}
+          {/* SECONDARY TRENDS */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 h-[410px]">
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className="w-1.5 h-4 rounded-full"
+                style={{ backgroundColor: BOARD_COLORS.local }}
               />
-            ))}
-            {(!context.insights || context.insights.length === 0) && (
-              <p className="text-gray-400 text-center py-10">
-                No specific insights available.
-              </p>
-            )}
+              <h3 className="text-sm font-semibold text-gray-900">Secondary Trends</h3>
+            </div>
+            <div className="h-[calc(100%-30px)]">
+              {context.chart2?.data ? (
+                <ChartRenderer
+                  data={context.chart2}
+                  granularity="daily"
+                  height="100%"
+                />
+              ) : (
+                <EmptyState icon="📈" />
+              )}
+            </div>
+          </div>
+
+          {/* QUICK STATS */}
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <span
+                className="w-1.5 h-4 rounded-full bg-gradient-to-r from-emerald-500 to-green-500"
+              />
+              <h3 className="text-sm font-semibold text-gray-900">Quick Stats</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-white p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                <p className="text-xs text-gray-500 mb-1">Peak Hour</p>
+                <p className="text-lg font-bold text-gray-900">18:00</p>
+                <p className="text-xs text-emerald-600 mt-1">↑ Highest usage</p>
+              </div>
+              <div className="bg-white p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                <p className="text-xs text-gray-500 mb-1">Avg. Daily</p>
+                <p className="text-lg font-bold text-gray-900">294 kWh</p>
+                <p className="text-xs text-gray-600 mt-1">Last 7 days</p>
+              </div>
+              <div className="bg-white p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                <p className="text-xs text-gray-500 mb-1">Efficiency</p>
+                <p className="text-lg font-bold text-gray-900">87%</p>
+                <p className="text-xs text-emerald-600 mt-1">↑ +3% vs prev</p>
+              </div>
+              <div className="bg-white p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                <p className="text-xs text-gray-500 mb-1">Cost/Day</p>
+                <p className="text-lg font-bold text-gray-900">€42.50</p>
+                <p className="text-xs text-gray-600 mt-1">Estimated</p>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* SECONDARY TRENDS */}
+        {/* INSIGHTS & DEEP DIVE - Right Column */}
         <motion.div
           variants={bentoItemVariants as any}
-          className={`md:col-span-12 lg:col-span-6 ${bentoCardClass}`}
+          className="md:col-span-12 lg:col-span-4 flex flex-col gap-6"
         >
-          <h3 className="text-xl font-bold text-[#1A3D63] mb-2 flex items-center gap-2">
-            <span
-              className="w-2 h-6 rounded-full"
-              style={{ backgroundColor: BOARD_COLORS.local }}
-            />
-            Secondary Trends
-          </h3>
-          <div className="flex-grow min-h-[350px]">
-            {context.chart2?.data ? (
-              <ChartRenderer
-                data={context.chart2}
-                granularity="daily"
-                height="350px"
+          {/* KEY INSIGHTS */}
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-5 shadow-sm border border-gray-100 h-[300px] overflow-y-auto hide-scrollbar">
+            <div className="flex items-center gap-2 mb-3">
+              <span
+                className="w-1.5 h-4 rounded-full"
+                style={{ backgroundColor: BOARD_COLORS.all }}
               />
-            ) : (
-              <EmptyState icon="📈" />
-            )}
+              <h3 className="text-sm font-semibold text-gray-900">Key Insights</h3>
+            </div>
+            <div className="space-y-2">
+              {context.insights?.slice(0, 3).map((insight, i) => (
+                <div key={i} className="bg-white p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                  <p className="font-medium text-xs text-gray-900 mb-1">{insight.title}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2">{insight.briefDescription}</p>
+                </div>
+              ))}
+              {(!context.insights || context.insights.length === 0) && (
+                <p className="text-gray-400 text-center py-4 text-xs">No insights</p>
+              )}
+            </div>
           </div>
-        </motion.div>
 
-        {/* DEEP DIVE */}
-        {context.deepDive && (
-          <motion.div
-            variants={bentoItemVariants as any}
-            className="md:col-span-12 lg:col-span-6 flex flex-col gap-4"
-          >
+          {/* DEEP DIVE */}
+          {context.deepDive && (
             <div
-              className="rounded-3xl p-8 text-white shadow-sm flex-grow"
+              className="rounded-2xl p-5 shadow-sm text-white"
               style={{ backgroundColor: BOARD_COLORS.it }}
             >
-              <h3 className="text-xl font-bold mb-4">
-                Deep Dive Analysis
-              </h3>
-              <p className="text-white leading-relaxed text-sm md:text-base">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-1.5 h-4 rounded-full bg-white/90" />
+                <h3 className="text-sm font-semibold">Deep Dive</h3>
+              </div>
+              <p className="text-xs leading-relaxed mb-3 opacity-95 line-clamp-3">
                 {context.deepDive.description}
               </p>
+              {context.deepDive.keyPoints && context.deepDive.keyPoints.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {context.deepDive.keyPoints.slice(0, 4).map((kp, i) => (
+                    <KeypointCard
+                      key={i}
+                      index={i}
+                      title={kp.label}
+                      description={kp.text}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {context.deepDive.keyPoints?.slice(0, 4).map((kp, i) => (
-                <KeypointCard
-                  key={i}
-                  index={i}
-                  title={kp.label}
-                  description={kp.text}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
+          )}
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -228,9 +261,9 @@ const Context = ({ context }: BoardContextProps) => {
 
 // Empty chart helper
 const EmptyState = ({ icon }: { icon: string }) => (
-  <div className="h-full w-full flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-dashed border-gray-300 text-gray-400 min-h-[250px]">
-    <span className="text-4xl mb-2 opacity-50">{icon}</span>
-    <p className="text-sm font-medium">No data available</p>
+  <div className="h-full w-full flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-gray-200 text-gray-400 min-h-[200px]">
+    <span className="text-3xl mb-2 opacity-40">{icon}</span>
+    <p className="text-xs font-medium">No data available</p>
   </div>
 );
 

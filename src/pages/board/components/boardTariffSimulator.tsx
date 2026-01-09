@@ -10,6 +10,15 @@ import ReactECharts from "echarts-for-react";
 import {Save} from 'lucide-react';
 import BlueprintModal from "@src/components/modals/blueprintModal.tsx";
 
+/** BOARD_COLORS palette (match Context & Recommendations) */
+const BOARD_COLORS = {
+    grid: '#10B981',   // emerald green
+    local: '#22C55E',  // lime green
+    all: '#34D399',    // light green
+    mixed: '#059669',  // darker green
+    it: '#047857',     // forest green
+};
+
 const INITIAL_FORM_DATA = {
     contracted_power_p1: '',
     contracted_power_p2: '',
@@ -338,11 +347,6 @@ const calculateCosts = useMemo(() => {
         const cargosEnergyData = calculateCosts.variableCosts.map(c => parseFloat(c.cargo.toFixed(2)));
 
         return {
-            title: {
-                text: `Cost Breakdown (Fixed + Variable)`,
-                left: 'center',
-                textStyle: { color: '#1A3D63', fontSize: 16, fontWeight: 'bold' }
-            },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' }
@@ -365,28 +369,28 @@ const calculateCosts = useMemo(() => {
                     type: 'bar',
                     stack: 'total',
                     data: peajesPowerData,
-                    itemStyle: { color: '#93C5FD' } // Light Blue
+                    itemStyle: { color: BOARD_COLORS.grid }
                 },
                 {
                     name: 'Power Cargos',
                     type: 'bar',
                     stack: 'total',
                     data: cargosPowerData,
-                    itemStyle: { color: '#C4B5FD' } // Light Purple
+                    itemStyle: { color: BOARD_COLORS.local }
                 },
                 {
                     name: 'Energy Peajes',
                     type: 'bar',
                     stack: 'total',
                     data: peajesEnergyData,
-                    itemStyle: { color: '#2563EB' } // Dark Blue
+                    itemStyle: { color: BOARD_COLORS.all }
                 },
                 {
                     name: 'Energy Cargos',
                     type: 'bar',
                     stack: 'total',
                     data: cargosEnergyData,
-                    itemStyle: { color: '#7C3AED' } // Dark Purple
+                    itemStyle: { color: BOARD_COLORS.mixed }
                 }
             ]
         };
@@ -461,7 +465,7 @@ const calculateCosts = useMemo(() => {
                     },
                     label: {
                         formatter: '{b}: {c} €',
-                        color: '#1A3D63'
+                        color: BOARD_COLORS.it
                     },
                     labelLine: {
                         length: 10
@@ -471,7 +475,7 @@ const calculateCosts = useMemo(() => {
                         borderColor: '#fff',
                         borderWidth: 2
                     },
-                    color: ['#4C51BF', '#3B82F6', '#10B981', '#F59E0B']
+                    color: [BOARD_COLORS.it, BOARD_COLORS.grid, BOARD_COLORS.local, '#F59E0B']
                 }
             ]
         };
@@ -503,7 +507,7 @@ const calculateCosts = useMemo(() => {
             {/* LEFT SIDEBAR - Configuration Panel */}
             <motion.div
                 variants={itemVariants as any}
-                className="w-80 bg-white rounded-lg shadow-md p-6 flex flex-col gap-6 overflow-y-auto max-h-screen"
+                className="w-72 bg-white rounded-lg shadow-md p-4 flex flex-col gap-6 overflow-y-auto max-h-screen"
             >
                 <div>
                     <h3 className="text-lg font-semibold mb-4">Tariff Configuration</h3>
@@ -521,7 +525,7 @@ const calculateCosts = useMemo(() => {
                             <select
                                 onChange={handleBlueprintChange}
                                 value={selectedBlueprint?.id || ''}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             >
                                 <option value="">-- Select a blueprint --</option>
                                 {blueprints?.map((blueprint) => (
@@ -547,7 +551,7 @@ const calculateCosts = useMemo(() => {
                         <div
                             className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
                                 extractFromPDF.isPending
-                                    ? 'bg-blue-50 border-blue-400'
+                                    ? 'bg-emerald-50 border-emerald-400'
                                     : 'bg-white border-gray-300 hover:bg-gray-50'
                             } disabled:cursor-not-allowed`}
                         >
@@ -562,8 +566,8 @@ const calculateCosts = useMemo(() => {
 
                             {extractFromPDF.isPending ? (
                                 <div className="text-center">
-                                    <span className="inline-block animate-spin text-blue-600 text-3xl">⏳</span>
-                                    <p className="text-sm text-blue-600 mt-2 font-medium">
+                                    <span className="inline-block animate-spin text-emerald-600 text-3xl">⏳</span>
+                                    <p className="text-sm text-emerald-600 mt-2 font-medium">
                                         Extracting data... Please wait.
                                     </p>
                                 </div>
@@ -573,7 +577,7 @@ const calculateCosts = useMemo(() => {
                                     className="flex flex-col items-center justify-center w-full h-full cursor-pointer p-4"
                                 >
                                     <svg
-                                        className="w-8 h-8 text-blue-500"
+                                        className="w-8 h-8 text-emerald-500"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -582,7 +586,7 @@ const calculateCosts = useMemo(() => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 014 4v2a2 2 0 01-2 2h-4M15 19l-3-3m0 0l-3 3m3-3v8"></path>
                                     </svg>
                                     <p className="text-sm text-gray-600 mt-2">
-                                        <span className="font-medium text-blue-600 hover:text-blue-500">
+                                        <span className="font-medium text-emerald-600 hover:text-emerald-500">
                                             Click to upload
                                         </span> or drag and drop
                                     </p>
@@ -611,7 +615,7 @@ const calculateCosts = useMemo(() => {
                         <select
                             value={tariffType}
                             onChange={(e) => setTariffType(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         >
                             <option value="indexed">Indexed tariffs</option>
                             <option value="fixed">Fixed tariffs</option>
@@ -626,7 +630,7 @@ const calculateCosts = useMemo(() => {
                         <select
                             value={accessToll}
                             onChange={(e) => setAccessToll(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         >
                             <option value="2.1t">2.1t</option>
                             <option value="2.0td">2.0td</option>
@@ -641,7 +645,7 @@ const calculateCosts = useMemo(() => {
                                 type="checkbox"
                                 checked={useRecommendations}
                                 onChange={(e) => setUseRecommendations(e.target.checked)}
-                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
                             />
                             <span className="text-sm font-medium text-gray-700">Use recommendations</span>
                         </label>
@@ -841,25 +845,25 @@ const calculateCosts = useMemo(() => {
                 className="flex-1 space-y-6"
             >
                 {/* Chart Section */}
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-semibold">Tariff Cost Analysis</h3>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setTimePeriod('day')}
-                                className={`px-3 py-1 text-sm rounded ${timePeriod === 'day' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                className={`px-3 py-1 text-sm rounded ${timePeriod === 'day' ? 'bg-emerald-500 text-white' : 'bg-gray-200'}`}
                             >
                                 Day
                             </button>
                             <button
                                 onClick={() => setTimePeriod('week')}
-                                className={`px-3 py-1 text-sm rounded ${timePeriod === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                className={`px-3 py-1 text-sm rounded ${timePeriod === 'week' ? 'bg-emerald-500 text-white' : 'bg-gray-200'}`}
                             >
                                 Week
                             </button>
                             <button
                                 onClick={() => setTimePeriod('month')}
-                                className={`px-3 py-1 text-sm rounded ${timePeriod === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                className={`px-3 py-1 text-sm rounded ${timePeriod === 'month' ? 'bg-emerald-500 text-white' : 'bg-gray-200'}`}
                             >
                                 Month
                             </button>
@@ -871,31 +875,44 @@ const calculateCosts = useMemo(() => {
                         <>
                             {/* 1. Bar Chart: Renders only if there are non-zero Fixed Power Costs */}
                             {barChartOption && (
-                                <ReactECharts
-                                    option={barChartOption}
-                                    style={{ height: '300px', width: '100%' }}
-                                    opts={{ renderer: 'canvas' }}
-                                />
+                                <>
+                                    <div className="mb-4">
+                                        <h4 className="text-md font-semibold" style={{ color: BOARD_COLORS.it }}>Cost Breakdown (Fixed + Variable)</h4>
+                                    </div>
+                                    <ReactECharts
+                                        option={barChartOption}
+                                        style={{ height: '350px', width: '100%' }}
+                                        opts={{ renderer: 'canvas' }}
+                                    />
+                                </>
                             )}
 
                             {/* 2. Pie Chart: Renders if the Bar Chart is empty OR if only Fixed Power Costs are zero */}
                             {!barChartOption && pieChartOption && (
-                                <ReactECharts
-                                    option={pieChartOption}
-                                    style={{ height: '300px', width: '100%' }}
-                                    opts={{ renderer: 'canvas' }}
-                                />
+                                <>
+                                    <div className="mb-4">
+                                        <h4 className="text-md font-semibold" style={{ color: BOARD_COLORS.it }}>
+                                            {`Total Fixed Cost Breakdown - ${timePeriod === 'day' ? 'Daily' : timePeriod === 'week' ? 'Weekly' : 'Monthly'}`}
+                                        </h4>
+                                        <p className="text-sm text-gray-500">{`Total: ${calculateCosts.total.toFixed(2)} €`}</p>
+                                    </div>
+                                    <ReactECharts
+                                        option={pieChartOption}
+                                        style={{ height: '420px', width: '100%' }}
+                                        opts={{ renderer: 'canvas' }}
+                                    />
+                                </>
                             )}
 
                             {/* Cost Summary (remains the same) */}
-                            <div className="mt-6 grid grid-cols-2 gap-4 pt-4 border-t">
+                            <div className="mt-1 grid grid-cols-2 gap-4 pt-2 border-t">
                                 <div>
                                     <p className="text-sm text-gray-600">Total Peajes</p>
-                                    <p className="text-lg font-semibold text-blue-600">{calculateCosts.totalFixedPeajes.toFixed(2)} €</p>
+                                    <p className="text-lg font-semibold" style={{ color: BOARD_COLORS.grid }}>{calculateCosts.totalFixedPeajes.toFixed(2)} €</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Total Cargos</p>
-                                    <p className="text-lg font-semibold text-purple-600">{calculateCosts.totalFixedCargos.toFixed(2)} €</p>
+                                    <p className="text-lg font-semibold" style={{ color: BOARD_COLORS.local }}>{calculateCosts.totalFixedCargos.toFixed(2)} €</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Other Costs</p>
@@ -903,11 +920,11 @@ const calculateCosts = useMemo(() => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Electricity Tax</p>
-                                    <p className="text-lg font-semibold text-orange-600">{calculateCosts.electricityTax.toFixed(2)} €</p>
+                                    <p className="text-lg font-semibold" style={{ color: BOARD_COLORS.mixed }}>{calculateCosts.electricityTax.toFixed(2)} €</p>
                                 </div>
                                 <div className="col-span-2 pt-2 border-t">
                                     <p className="text-sm text-gray-600">Total Cost ({calculateCosts.days} day{calculateCosts.days > 1 ? 's' : ''})</p>
-                                    <p className="text-2xl font-bold text-blue-900">{calculateCosts.total.toFixed(2)} €</p>
+                                    <p className="text-2xl font-bold" style={{ color: '#111827' }}>{calculateCosts.total.toFixed(2)} €</p>
                                 </div>
                             </div>
                         </>

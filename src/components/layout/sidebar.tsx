@@ -72,7 +72,7 @@ export const Sidebar = ({ activeBoardId, onSelectionChange }: SidebarProps) => {
 
     return (
         <motion.div
-            animate={{ width: isCollapsed ? 60 : 320 }}
+            animate={{ width: isCollapsed ? 60 : 288 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full rounded-2xl border border-slate-200 bg-white flex flex-col font-sans shadow-lg relative shrink-0 z-20 overflow-hidden"
         >

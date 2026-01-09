@@ -92,7 +92,7 @@ const BoardPage = () => {
     }, [activeTab, allDataSources, currentSelectedIds, getContext, id, queryClient]);
 
     return (
-        <div className="flex flex-row bg-gradient-to-b from-white to-blue-200 overflow-hidden p-4 gap-4" style={{ height: 'calc(100vh - 72px)' }}>
+        <div className="flex flex-row bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden p-4 gap-4" style={{ height: 'calc(100vh - 72px)' }}>
             <Sidebar activeBoardId={id ?? ""} onSelectionChange={handleSelectionChange} />
             <main className="flex-1 flex flex-col h-full min-w-0 relative">
                 <div className="px-10 pt-4 shrink-0 z-10">
