@@ -14,7 +14,6 @@ export function Header() {
 
         {/* Center Navigation */}
         <ul className="hidden lg:flex items-center gap-10 text-[#0A1A2F] text-base font-medium">
-          <li><Link to="/demo" className="hover:text-gray-600 transition-colors">Demo</Link></li>
           <li><Link to="/boards/new" className="hover:text-gray-600 transition-colors">New Board</Link></li>
           <li><Link to="/boards" className="hover:text-gray-600 transition-colors">Your Boards</Link></li>
           <li><Link to="/pricing" className="hover:text-gray-600 transition-colors">Pricing</Link></li>

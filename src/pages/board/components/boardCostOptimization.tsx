@@ -20,9 +20,10 @@ const BOARD_COLORS = {
 
 interface CostOptimizationProps {
     boardId: string;
+    onNavigateToComparator?: (tariffId: string) => void;
 }
 
-const CostOptimization = ({ boardId }: CostOptimizationProps) => {
+const CostOptimization = ({ boardId, onNavigateToComparator }: CostOptimizationProps) => {
     const queryClient = useQueryClient();
     // Form State
     const [formState, setFormState] = useState<FormState>({
@@ -59,17 +60,18 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
         onSuccess: async (data) => {
             setOptimizationResult(data);
             setNewBlueprintId(data.optimizedBlueprintId);
-            await queryClient.invalidateQueries({ queryKey: ['boardTariffBlueprints', boardId] });
-            await queryClient.refetchQueries({ queryKey: ['boardTariffBlueprints', boardId] });
+            await queryClient.invalidateQueries({
+                queryKey: ['tariff-blueprints', 'board', boardId]
+            });
         }
     });
+
     const handleOptimize = () => {
         if (!formState.tariffId) {
             alert('Please select a tariff first');
             return;
         }
 
-        // Map your UI state to the backend-expected format
         const payload = {
             tariffId: formState.tariffId,
             consumption: formState.consumption,
@@ -85,6 +87,12 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
         optimize(payload);
     };
 
+    const handleCompareBlueprint = () => {
+        if (newBlueprintId && onNavigateToComparator) {
+            onNavigateToComparator(newBlueprintId);
+        }
+    };
+
     return (
         <motion.div
             variants={containerVariants}
@@ -95,165 +103,112 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
             {/* LEFT SIDEBAR - Parameters Panel */}
             <motion.div
                 variants={itemVariants as any}
-                className="w-72 bg-white rounded-lg shadow-md p-6 flex flex-col gap-4 overflow-y-auto"
+                className="w-72 bg-white rounded-lg shadow-md p-5 flex flex-col h-full max-h-[calc(100vh-2rem)]"
             >
-                {/* Tariff Selector */}
-                <div className="flex items-center justify-between border-b pb-3">
+                {/* Header - Fixed */}
+                <div className="flex items-center justify-between border-b pb-3 mb-4 shrink-0">
                     <h3 className="text-lg font-semibold">Tariff Blueprint</h3>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Tariff
-                    </label>
-                    {isLoadingTariffs ? (
-                        <div className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-500">
-                            Loading tariffs...
-                        </div>
-                    ) : (
-                        <select
-                            value={formState.tariffId}
-                            onChange={(e) => setFormState(prev => ({
-                                ...prev,
-                                tariffId: e.target.value,
-                                consumption: {
-                                    p1: 100,
-                                    p2: 150,
-                                    p3: 80,
-                                    p4: 60,
-                                    p5: 40,
-                                    p6: 70
-                                }
-                            }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        >
-                            <option value="">Select a tariff...</option>
-                            {blueprints?.map((tariff) => (
-                                <option key={tariff.id} value={tariff.id}>
-                                    {tariff.name}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                </div>
 
-                {/* Anomalies Section */}
-                <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-gray-700">Anomalies</h4>
-                        <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
-                            {mockAnomalies.length} detected
-                        </span>
-                    </div>
-                    <div className="space-y-2">
-                        {mockAnomalies.map((anomaly) => (
-                            <div key={anomaly.id} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
-                                <div className={`w-1 h-full rounded ${
-                                    anomaly.severity === 'high' ? 'bg-red-500' :
-                                        anomaly.severity === 'medium' ? 'bg-orange-500' :
-                                            'bg-emerald-500'
-                                }`}></div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-800">{anomaly.title}</p>
-                                    <p className="text-xs text-gray-600">{anomaly.description}</p>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    className="mt-1"
-                                    checked={formState.selectedAnomalies.includes(anomaly.id)}
-                                    onChange={(e) => {
-                                        setFormState(prev => ({
-                                            ...prev,
-                                            selectedAnomalies: e.target.checked
-                                                ? [...prev.selectedAnomalies, anomaly.id]
-                                                : prev.selectedAnomalies.filter(id => id !== anomaly.id)
-                                        }));
-                                    }}
-                                />
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto pr-1 space-y-4 mb-4 custom-scrollbar">
+                    {/* Tariff Selector */}
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                            Select Tariff
+                        </label>
+                        {isLoadingTariffs ? (
+                            <div className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-400 text-sm italic">
+                                Loading...
                             </div>
-                        ))}
+                        ) : (
+                            <select
+                                value={formState.tariffId}
+                                onChange={(e) => setFormState(prev => ({ ...prev, tariffId: e.target.value }))}
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500"
+                            >
+                                <option value="">Select a tariff...</option>
+                                {blueprints?.map((tariff) => (
+                                    <option key={tariff.id} value={tariff.id}>{tariff.name}</option>
+                                ))}
+                            </select>
+                        )}
                     </div>
-                </div>
 
-                {/* Recommendations Section */}
-                <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-gray-700">Recommendations</h4>
-                        <span className="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-full font-medium">
-                            {mockRecommendations.length} actions
-                        </span>
-                    </div>
-                    <div className="space-y-2">
-                        {mockRecommendations.map((rec) => (
-                            <div key={rec.id} className="flex items-start gap-3 p-2 bg-gray-50 rounded">
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-800">{rec.title}</p>
-                                    <p className="text-xs text-gray-600">{rec.description}</p>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    className="mt-1"
-                                    checked={formState.selectedRecommendations.includes(rec.id)}
-                                    onChange={(e) => {
-                                        setFormState(prev => ({
-                                            ...prev,
-                                            selectedRecommendations: e.target.checked
-                                                ? [...prev.selectedRecommendations, rec.id]
-                                                : prev.selectedRecommendations.filter(id => id !== rec.id)
-                                        }));
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Patterns Section */}
-                <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-gray-700">Patterns</h4>
-                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full font-medium">
-                            Stable
-                        </span>
-                    </div>
-                    <div className="space-y-2">
-                        {mockPatterns.map((pattern) => (
-                            <div key={pattern.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <div className="flex items-center gap-2">
-                                    <span className={`${
-                                        pattern.trend === 'up' ? 'text-green-500' :
-                                            pattern.trend === 'down' ? 'text-emerald-500' :
-                                                'text-emerald-500'
-                                    }`}>
-                                        {pattern.trend === 'up' ? '↑' : pattern.trend === 'down' ? '↓' : '→'}
-                                    </span>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-800">{pattern.title}</p>
-                                        <p className="text-xs text-gray-600">{pattern.timeRange}</p>
+                    {/* Anomalies Section - Collapsible */}
+                    <details open className="group">
+                        <summary className="flex items-center justify-between cursor-pointer list-none">
+                            <h4 className="text-sm font-semibold text-gray-700">Anomalies</h4>
+                            <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">
+                    {mockAnomalies.length}
+                </span>
+                        </summary>
+                        <div className="space-y-2 mt-2 max-h-40 overflow-y-auto">
+                            {mockAnomalies.map((anomaly) => (
+                                <div key={anomaly.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded group/item">
+                                    <div className={`w-1 shrink-0 self-stretch rounded ${anomaly.severity === 'high' ? 'bg-red-500' : 'bg-orange-500'}`}></div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{anomaly.title}</p>
+                                        <p className="text-[10px] text-gray-500 leading-tight line-clamp-1">{anomaly.description}</p>
                                     </div>
+                                    <input
+                                        type="checkbox"
+                                        className="w-3 h-3 mt-0.5 rounded text-emerald-600"
+                                        checked={formState.selectedAnomalies.includes(anomaly.id)}
+                                        onChange={(e) => { /* logic */ }}
+                                    />
                                 </div>
-                                <span className={`text-sm font-semibold ${
-                                    pattern.trend === 'up' ? 'text-green-600' :
-                                        pattern.trend === 'down' ? 'text-emerald-600' :
-                                            'text-emerald-500'
-                                }`}>{pattern.value}</span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                    </details>
+
+                    {/* Recommendations Section - Collapsible */}
+                    <details open className="group">
+                        <summary className="flex items-center justify-between cursor-pointer list-none">
+                            <h4 className="text-sm font-semibold text-gray-700">Recommendations</h4>
+                            <span className="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold">
+                    {mockRecommendations.length}
+                </span>
+                        </summary>
+                        <div className="space-y-2 mt-2 max-h-40 overflow-y-auto">
+                            {mockRecommendations.map((rec) => (
+                                <div key={rec.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{rec.title}</p>
+                                        <p className="text-[10px] text-gray-500 leading-tight line-clamp-1">{rec.description}</p>
+                                    </div>
+                                    <input type="checkbox" className="w-3 h-3 mt-0.5 rounded text-emerald-600" />
+                                </div>
+                            ))}
+                        </div>
+                    </details>
+
+                    {/* Patterns Section - Compact */}
+                    <div className="pt-2">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Patterns</h4>
+                        <div className="grid grid-cols-1 gap-1">
+                            {mockPatterns.slice(0, 2).map((pattern) => (
+                                <div key={pattern.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                                    <span className="text-emerald-500 font-bold">{pattern.trend === 'up' ? '↑' : '↓'}</span>
+                                    <span className="flex-1 ml-2 text-gray-700 truncate">{pattern.title}</span>
+                                    <span className="font-bold">{pattern.value}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Optimize Button */}
-                <button
-                    onClick={handleOptimize}
-                    disabled={!formState.tariffId || isOptimizing}
-                            className="w-full bg-emerald-600 text-white py-3 rounded-md font-semibold hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                    {isOptimizing ? 'Optimizing...' : 'Optimize Cost'}
-                </button>
-
-                {/* Footer Text */}
-                <div className="mt-auto pt-4 border-t">
-                    <p className="text-xs text-gray-600">
-                        Select recommendations and anomalies to view their <span className="font-semibold">impact on the cost</span>
+                {/* Footer - Fixed */}
+                <div className="shrink-0 space-y-3">
+                    <button
+                        onClick={handleOptimize}
+                        disabled={!formState.tariffId || isOptimizing}
+                        className="w-full bg-emerald-600 text-white py-2.5 rounded-md text-sm font-bold hover:bg-emerald-700 transition-all shadow-sm disabled:bg-gray-200"
+                    >
+                        {isOptimizing ? 'Optimizing...' : 'Optimize Cost'}
+                    </button>
+                    <p className="text-[10px] text-gray-400 text-center leading-tight">
+                        Select items to view <span className="text-gray-600 font-medium">impact on cost</span>
                     </p>
                 </div>
             </motion.div>
@@ -408,10 +363,13 @@ const CostOptimization = ({ boardId }: CostOptimizationProps) => {
 
                             <div className="flex gap-4 pt-3 border-t">
                                 <button
-                                    onClick={() => setFormState(prev => ({ ...prev, tariffId: newBlueprintId }))}
-                                    className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-emerald-700 transition-colors"
+                                    onClick={handleCompareBlueprint}
+                                    className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
                                 >
-                                    Use This Blueprint
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    Compare This Blueprint
                                 </button>
                             </div>
                         </div>

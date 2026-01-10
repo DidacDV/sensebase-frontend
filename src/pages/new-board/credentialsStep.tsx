@@ -103,7 +103,7 @@ function CredentialsStep() {
                                     )}
                                 </label>
                                 <input
-                                    type={getInputType(field)}
+                                    type="password"
                                     value={state.credentials[field] || ''}
                                     onChange={(e) => setCredential(field, e.target.value)}
                                     placeholder="Value"

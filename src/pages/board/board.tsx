@@ -66,6 +66,7 @@ const BoardPage = () => {
 
     const [currentSelectedIds, setCurrentSelectedIds] = useState<Set<string>>();
     const [allDataSources, setAllDataSources] = useState<DataSourcesResponse | undefined>(undefined);
+    const [selectedTariffForComparison, setSelectedTariffForComparison] = useState<string | null>(null);
 
     const handleSelectionChange = useCallback((ids: Set<string>, sources: DataSourcesResponse | undefined) => {
         setCurrentSelectedIds(ids);
@@ -115,10 +116,17 @@ const BoardPage = () => {
                         consumptionSeries={boardContext?.consumption_series || []} />
                     )}
                     {activeTab === "Cost optimization" && (
-                        <CostOptimization boardId={id ?? ""}/>
+                        <CostOptimization boardId={id ?? ""}
+                                          onNavigateToComparator={(tariffId) => {
+                                              setSelectedTariffForComparison(tariffId);
+                                              setActiveTab("Tariff comparator");
+                                          }}
+                        />
                     )}
                     {activeTab == "Tariff comparator" && (
-                        <TariffComparator boardId={id ?? "0"} consumptionSeries={boardContext?.consumption_series || []} />
+                        <TariffComparator boardId={id ?? "0"}
+                                          consumptionSeries={boardContext?.consumption_series || []}
+                                          preselectedTariffId={selectedTariffForComparison}/>
                     )}
                 </div>
             </main>

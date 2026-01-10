@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import {useState, useMemo, useEffect} from 'react';
 import { useBoardTariffBlueprints } from "@src/services/tariffService.ts";
 import ReactECharts from "echarts-for-react";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle, BarChart3, Wallet, Star } from 'lucide-reac
 interface TariffComparatorProps {
     boardId: string;
     consumptionSeries?: any[];
+    preselectedTariffId?: string | null;
 }
 
 const WinnerBadge = () => (
@@ -63,12 +64,21 @@ const getPeriodForHour = (date: Date): string => {
     return 'p6';
 };
 
-const TariffComparator = ({ boardId, consumptionSeries = [] }: TariffComparatorProps) => {
+const TariffComparator = ({ boardId, consumptionSeries = [], preselectedTariffId = null }: TariffComparatorProps) => {
     const { data: blueprints, isLoading, error } = useBoardTariffBlueprints(boardId);
     
     const [selectedBlueprintIdA, setSelectedBlueprintIdA] = useState<string>('');
     const [selectedBlueprintIdB, setSelectedBlueprintIdB] = useState<string>('');
     const [timePeriod, setTimePeriod] = useState<'day' | 'week' | 'month'>('month');
+
+    useEffect(() => {
+        if (preselectedTariffId && blueprints) {
+            const exists = blueprints.find(b => b.id.toString() === preselectedTariffId);
+            if (exists) {
+                setSelectedBlueprintIdB(preselectedTariffId);
+            }
+        }
+    }, [preselectedTariffId, blueprints]);
 
     const hasData = useMemo(() => consumptionSeries && consumptionSeries.length > 0, [consumptionSeries]);
 
