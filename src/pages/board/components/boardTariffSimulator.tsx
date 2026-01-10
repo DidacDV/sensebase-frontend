@@ -936,13 +936,39 @@ const calculateCosts = useMemo(() => {
                 </div>
 
                 {/* Future Events Section */}
-                <div className="bg-white rounded-lg shadow-md p-6">
+                { (barChartOption || pieChartOption) && <div className="bg-white rounded-lg shadow-md p-6">
                     <h3 className="text-lg font-semibold mb-4">Future events</h3>
 
-                    <div className="h-24 bg-gray-50 rounded flex items-center justify-center text-gray-500">
-                        Timeline will go here
+                    <div className="flex items-start gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                        {/* Event 1 */}
+                        <div className="min-w-[200px] flex-1 border-l-4 border-emerald-500 bg-emerald-50/50 p-3 rounded-r-md">
+                            <span className="text-[10px] font-bold text-emerald-600 uppercase">Oct 24 • Price Drop</span>
+                            <p className="text-sm font-semibold text-gray-800 truncate">P6 Index Update</p>
+                            <p className="text-xs text-gray-500 mt-1">-4.2% projected decrease</p>
+                        </div>
+
+                        {/* Event 2 */}
+                        <div className="min-w-[200px] flex-1 border-l-4 border-blue-500 bg-blue-50/50 p-3 rounded-r-md">
+                            <span className="text-[10px] font-bold text-blue-600 uppercase">Oct 27 • Tip</span>
+                            <p className="text-sm font-semibold text-gray-800 truncate">Peak Optimization</p>
+                            <p className="text-xs text-gray-500 mt-1">Shift loads to 02:00 AM</p>
+                        </div>
+
+                        {/* Event 3 */}
+                        <div className="min-w-[200px] flex-1 border-l-4 border-amber-500 bg-amber-50/50 p-3 rounded-r-md">
+                            <span className="text-[10px] font-bold text-amber-600 uppercase">Nov 01 • Billing</span>
+                            <p className="text-sm font-semibold text-gray-800 truncate">Monthly Invoice</p>
+                            <p className="text-xs text-gray-500 mt-1">Est: <span className="font-bold">{calculateCosts?.total.toFixed(2) || '0.00'} €</span></p>
+                        </div>
+
+                        {/* Event 4 */}
+                        <div className="min-w-[200px] flex-1 border-l-4 border-purple-500 bg-purple-50/50 p-3 rounded-r-md">
+                            <span className="text-[10px] font-bold text-purple-600 uppercase">Nov 15 • Power</span>
+                            <p className="text-sm font-semibold text-gray-800 truncate">Auto-Scale Review</p>
+                            <p className="text-xs text-gray-500 mt-1">Check P1/P2 capacity</p>
+                        </div>
                     </div>
-                </div>
+                </div>}
 
             </motion.div>
 

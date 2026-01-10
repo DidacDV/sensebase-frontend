@@ -80,12 +80,23 @@ export function useOptimizeTariff(options?: any) {
             consumption: any;
             recommendations: Array<{ type: string; parameters: any }>
         }) => tariffBlueprintApi.optimize(payload),
-        onSuccess: (data) => {
+        onSuccess: (data, variables, context) => {
             console.log('Optimization successful:', data);
+            // Call the custom onSuccess if provided
+            if (options?.onSuccess) {
+                options.onSuccess(data, variables, context);
+            }
         },
-        onError: (error) => {
+        onError: (error, variables, context) => {
             console.error('Optimization failed:', error);
+            // Call the custom onError if provided
+            if (options?.onError) {
+                options.onError(error, variables, context);
+            }
         },
-        ...options
+        // Spread other options but exclude onSuccess and onError since we're handling them above
+        ...Object.fromEntries(
+            Object.entries(options || {}).filter(([key]) => key !== 'onSuccess' && key !== 'onError')
+        )
     });
 }
