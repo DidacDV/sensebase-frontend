@@ -1,6 +1,10 @@
 # Sensebase Frontend
 
-This project uses a lightweight, modern stack to build fast and elegant interfaces.
+## Autors
+- Dídac Dalmases
+- Omar Antonio Cornejo
+- Rubén Palà
+- Enrique De Vicente Tutor
 
 **Tech stack**
 - **React** for UI components  
